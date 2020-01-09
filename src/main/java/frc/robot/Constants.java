@@ -10,6 +10,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.util.Units;
 
 public class Constants {
+
+    public static final double kRobotDelta = 0.01;
     
     // All distance measurements should be in meters when being used
     
@@ -21,16 +23,13 @@ public class Constants {
     public static final double kGearRatioLow = 11.12; // shifting gearbox ratio(motor rotations per wheel rotation)
     public static final double kGearRatioHigh = 4.41;
 
-    public static final double kMaxMetersLowGear = Units.feetToMeters(6); // Velocity
-    public static final double kMaxMetersHighGear = Units.feetToMeters(15);
-    
-    public static final double kRampRate = 0.12; // seconds to full output
+    public static final double kRampRate = 0.08; // seconds to full output
     
     public static final double kStaticFF = 0.2; // volts (Given from the characterization tool)
-    public static final double kVelocityFF = 6; // meters per second
-    public static final double kAccelerationFF = 0.25; // meters per second squared
+    public static final double kVelocityFF = 5; // meters per second
+    public static final double kAccelerationFF = 2; // meters per second squared
     
-    public static final double kP = 0.1; // PID Gains (For one meter/second of error, kP volts are applied)
+    public static final double kP = 0.3; // PID Gains (For one meter/second of error, kP volts are applied)
     public static final double kI = 0; // These shouldn't be necessary for velocity
     public static final double kD = 0;
     
@@ -39,7 +38,9 @@ public class Constants {
     //--------------------
     
     //--------------------Autonomous
-    public static final double kMaxVelocityMeters = Units.feetToMeters(2); // constraints
-    public static final double kMaxAccelerationMeters = Units.feetToMeters(2);
+    public static final double kMaxMetersLowGear = Units.feetToMeters(7.5); // Velocity
+    public static final double kMaxMetersHighGear = Units.feetToMeters(15);
+    public static final double kMaxAccelerationMeters = Units.feetToMeters(2.5);
+    public static final double kMaxRadiansLowGear = 7.5;
     //--------------------
 }

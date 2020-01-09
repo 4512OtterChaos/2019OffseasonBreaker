@@ -38,7 +38,7 @@ public class Trajectories {
                 new Pose2d(1, 0.0, new Rotation2d()),
                 new Pose2d(2, 1, new Rotation2d(90))
             ),
-            new TrajectoryConfig(kMaxVelocityMeters, kMaxAccelerationMeters).setKinematics(kinematics));
+            new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters).setKinematics(kinematics));
     }
 
     /**

@@ -20,6 +20,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
@@ -80,8 +81,8 @@ public class Drivetrain extends SubsystemBase {
     
     private Gear gear = getShiftedHigh() ? Gear.HIGH : Gear.LOW; // current gearbox ratio
     
-    private PIDController leftPIDController = new PIDController(kP, kI, kD); // Velocity PID controllers
-    private PIDController rightPIDController = new PIDController(kP, kI, kD);
+    private PIDController leftPIDController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
+    private PIDController rightPIDController = new PIDController(kP, kI, kD, kRobotDelta);
     
     public Drivetrain(){
         super();
@@ -121,8 +122,10 @@ public class Drivetrain extends SubsystemBase {
      * See {@link ConfigMotors})
      * @return double[] outputs (0 left, 1 right)
      */
-    public double[] tankDriveVolts(double leftVolts, double rightVolts){
-        return tankDrive(leftVolts / 12.0, rightVolts / 12.0, 1.0);
+    public void tankDriveVolts(double leftVolts, double rightVolts){
+        leftMotorA.setVoltage(leftVolts);
+        rightMotorA.setVoltage(rightVolts);
+        //return tankDrive(leftVolts / 12.0, rightVolts / 12.0, 1.0);
     }
     /**
      * Sets both sides of the drivetrain to given percentages
@@ -166,6 +169,8 @@ public class Drivetrain extends SubsystemBase {
      */
     public void setVelocityPID(double leftMetersPerSecond, double rightMetersPerSecond){
         DifferentialDriveWheelSpeeds speeds  = getWheelSpeeds();
+        //double leftVolts = feedForward.calculate(leftMetersPerSecond);
+        //double rightVolts = feedForward.calculate(rightMetersPerSecond);
         tankDriveVolts(
             feedForward.calculate(leftMetersPerSecond)+
             leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond),
@@ -242,7 +247,7 @@ public class Drivetrain extends SubsystemBase {
     public Rotation2d getHeading(){
         pigeon.getYawPitchRoll(ypr);
         pigeon.getRawGyro(xyz);
-        return Rotation2d.fromDegrees(ypr[0]);
+        return Rotation2d.fromDegrees(-ypr[0]);
     }
     public DifferentialDriveOdometry getOdometry(){
         return odometry;
@@ -267,11 +272,11 @@ public class Drivetrain extends SubsystemBase {
     public void log(){
         SmartDashboard.putNumber("Gyro Yaw", ypr[0]);
         SmartDashboard.putString("Gear", gear.toString());
-        SmartDashboard.putNumber("Left Velocity", leftEncoder.getVelocity());
-        SmartDashboard.putNumber("Right Velocity", rightEncoder.getVelocity());
+        SmartDashboard.putNumberArray("Velocities", new double[]{leftEncoder.getVelocity(), rightEncoder.getVelocity()});
         SmartDashboard.putNumber("Left Output", leftMotorA.getAppliedOutput());
         SmartDashboard.putNumber("Right Output", rightMotorA.getAppliedOutput());
-        SmartDashboard.putNumber("Feet/Second", Units.metersToFeet(kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond));
+        SmartDashboard.putNumber("Linear Feet/s", Units.metersToFeet(kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond));
+        SmartDashboard.putNumber("Angular Radians/s", kinematics.toChassisSpeeds(getWheelSpeeds()).omegaRadiansPerSecond);
         NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard"); // field positions for live visualizer
         liveTable.getEntry("robotX").setDouble(getOdometry().getPoseMeters().getTranslation().getX());
         liveTable.getEntry("robotY").setDouble(getOdometry().getPoseMeters().getTranslation().getY());

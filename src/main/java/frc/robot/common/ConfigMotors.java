@@ -68,7 +68,7 @@ public class ConfigMotors {
             motor.setClosedLoopRampRate(kRampRate);
 
             // Tries to compensate output to minimalize differences between battery voltages actively
-            motor.enableVoltageCompensation(12);
+            //motor.enableVoltageCompensation(12);
             
             // Save config
             motor.burnFlash();

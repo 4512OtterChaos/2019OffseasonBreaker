@@ -6,6 +6,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -58,9 +60,11 @@ public class RobotContainer {
             drivetrain);
         RunCommand PIDDrive = new RunCommand(
             ()->{
-                double[] sides = drivetrain.arcadeDrive(getY(Hand.kLeft), getX(Hand.kRight));
-                double maxVelocity = drivetrain.getMaxVelocityMeters();
-                drivetrain.setVelocityPID(sides[0] * maxVelocity, sides[1] * maxVelocity);
+                double linear = getY(Hand.kLeft)*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
+                double angular = (-getX(Hand.kRight))*(kMaxRadiansLowGear);
+                ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(linear, 0, angular, drivetrain.getHeading());
+                DifferentialDriveWheelSpeeds wheelSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
+                drivetrain.setVelocityPID(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
             },
             drivetrain);
 
@@ -100,11 +104,11 @@ public class RobotContainer {
     }
 
     private double getY(Hand hand){
-        double x = controller.getY(hand);
-        return -(Math.abs(x) < 0.08 ? 0:x);
+        double y = controller.getY(hand);
+        return -(Math.abs(y) < 0.1 ? 0:y);
     }
     private double getX(Hand hand){
         double x = controller.getX(hand);
-        return (Math.abs(x) < 0.08 ? 0:x);
+        return (Math.abs(x) < 0.1 ? 0:x);
     }
 }
