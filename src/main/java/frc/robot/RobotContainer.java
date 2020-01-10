@@ -35,6 +35,8 @@ public class RobotContainer {
         drivetrain = new Drivetrain();
         trajectories = new Trajectories(drivetrain.getKinematics());
 
+        drivetrain.shift(Drivetrain.Gear.LOW);
+
         configureButtonBindings(); // Attach functionality to controller
 
         commandChooser.setDefaultOption("Nothing", new InstantCommand(() -> drivetrain.tankDrive(0,0), drivetrain));
@@ -62,9 +64,11 @@ public class RobotContainer {
             ()->{
                 double linear = getY(Hand.kLeft)*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
                 double angular = (-getX(Hand.kRight))*(kMaxRadiansLowGear);
-                ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(linear, 0, angular, drivetrain.getHeading());
-                DifferentialDriveWheelSpeeds wheelSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
-                drivetrain.setVelocityPID(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
+                ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, angular, drivetrain.getHeading());
+                DifferentialDriveWheelSpeeds angularSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
+                double leftMetersPerSecond = linear + angularSpeeds.leftMetersPerSecond;
+                double rightMetersPerSecond = linear + angularSpeeds.rightMetersPerSecond;
+                drivetrain.setVelocityPID(leftMetersPerSecond, rightMetersPerSecond);
             },
             drivetrain);
 
@@ -105,10 +109,12 @@ public class RobotContainer {
 
     private double getY(Hand hand){
         double y = controller.getY(hand);
-        return -(Math.abs(y) < 0.1 ? 0:y);
+        double deadband = 0.1;
+        return -(Math.abs(y) < deadband ? 0:y);
     }
     private double getX(Hand hand){
-        double x = controller.getX(hand);
-        return (Math.abs(x) < 0.1 ? 0:x);
+        double x = controller.getX(Hand.kRight);
+        double deadband = 0.1;
+        return Math.abs(x) < deadband ? 0:x;
     }
 }

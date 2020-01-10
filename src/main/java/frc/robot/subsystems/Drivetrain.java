@@ -231,9 +231,13 @@ public class Drivetrain extends SubsystemBase {
      * @return DifferentialDriveWheelSpeeds object in meters per second
      */
     public DifferentialDriveWheelSpeeds getWheelSpeeds(){
+        double circumference = Math.PI * 2.0 * kWheelRadiusMeters;
         return new DifferentialDriveWheelSpeeds(
-            leftEncoder.getVelocity() / getReductionRatio() * Math.PI * 2 * kWheelRadiusMeters / 60,
-            rightEncoder.getVelocity() / getReductionRatio() * Math.PI * 2 * kWheelRadiusMeters / 60);
+            (leftEncoder.getVelocity() / getReductionRatio() * circumference) / 60.0,
+            (rightEncoder.getVelocity() / getReductionRatio() * circumference) / 60.0);
+    }
+    public double getEncoderDistance(CANEncoder encoder){
+        return encoder.getPosition() * Math.PI * 2.0 * kWheelRadiusMeters;
     }
 
     public SimpleMotorFeedforward getFeedForward(){
@@ -253,7 +257,7 @@ public class Drivetrain extends SubsystemBase {
         return odometry;
     }
     public void updateOdometry(){
-        odometry.update(getHeading(), leftEncoder.getPosition(), rightEncoder.getPosition());
+        odometry.update(getHeading(), getEncoderDistance(leftEncoder), getEncoderDistance(rightEncoder));
     }
     public void resetOdometry(){
         resetOdometry(getHeading());
@@ -270,17 +274,24 @@ public class Drivetrain extends SubsystemBase {
     * Log data to the dashboard.
     */
     public void log(){
-        SmartDashboard.putNumber("Gyro Yaw", ypr[0]);
+        SmartDashboard.putNumber("Gyro Yaw", getHeading().getDegrees());
         SmartDashboard.putString("Gear", gear.toString());
-        SmartDashboard.putNumberArray("Velocities", new double[]{leftEncoder.getVelocity(), rightEncoder.getVelocity()});
+        //SmartDashboard.putNumberArray("Velocities", new double[]{leftEncoder.getVelocity(), rightEncoder.getVelocity()});
+        SmartDashboard.putNumber("Left Velocity", leftEncoder.getVelocity());
+        SmartDashboard.putNumber("Right Velocity", rightEncoder.getVelocity());
+        DifferentialDriveWheelSpeeds speeds = getWheelSpeeds();
+        SmartDashboard.putNumber("Left Feet Per", Units.metersToFeet(speeds.leftMetersPerSecond));
+        SmartDashboard.putNumber("Right Feet Per", Units.metersToFeet(speeds.rightMetersPerSecond));
+        SmartDashboard.putNumber("Left Setpoint", Units.metersToFeet(leftPIDController.getSetpoint()));
+        SmartDashboard.putNumber("Right Setpoint", Units.metersToFeet(rightPIDController.getSetpoint()));
         SmartDashboard.putNumber("Left Output", leftMotorA.getAppliedOutput());
         SmartDashboard.putNumber("Right Output", rightMotorA.getAppliedOutput());
-        SmartDashboard.putNumber("Linear Feet/s", Units.metersToFeet(kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond));
-        SmartDashboard.putNumber("Angular Radians/s", kinematics.toChassisSpeeds(getWheelSpeeds()).omegaRadiansPerSecond);
+        SmartDashboard.putNumber("Linear Feet Per", Units.metersToFeet(kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond));
+        SmartDashboard.putNumber("Angular Radians Per", kinematics.toChassisSpeeds(getWheelSpeeds()).omegaRadiansPerSecond);
         NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard"); // field positions for live visualizer
-        liveTable.getEntry("robotX").setDouble(getOdometry().getPoseMeters().getTranslation().getX());
-        liveTable.getEntry("robotY").setDouble(getOdometry().getPoseMeters().getTranslation().getY());
-        liveTable.getEntry("robotHeading").setDouble(getOdometry().getPoseMeters().getRotation().getDegrees());
+        liveTable.getEntry("robotX").setDouble(Units.metersToFeet(getOdometry().getPoseMeters().getTranslation().getX()));
+        liveTable.getEntry("robotY").setDouble(Units.metersToFeet(getOdometry().getPoseMeters().getTranslation().getY()));
+        liveTable.getEntry("robotHeading").setDouble(getOdometry().getPoseMeters().getRotation().getRadians());
 
         //SmartDashboard.putData(leftPIDController);
         //SmartDashboard.putData(rightPIDController);
