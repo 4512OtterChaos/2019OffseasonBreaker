@@ -75,16 +75,16 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(arcadeDrive);
 
         new JoystickButton(controller, 1)
-            .whenPressed(new InstantCommand(() -> drivetrain.shift(Drivetrain.Gear.LOW)));
+            .whenPressed(() -> drivetrain.shift(Drivetrain.Gear.LOW));
         new JoystickButton(controller, 2)
-            .whenPressed(new InstantCommand(() -> drivetrain.shift(Drivetrain.Gear.HIGH)));
+            .whenPressed(() -> drivetrain.shift(Drivetrain.Gear.HIGH));
 
         new Trigger(() -> controller.getTriggerAxis(Hand.kRight) > 0.1)
             .toggleWhenActive(PIDDrive);
 
         new JoystickButton(controller, 6)
-            .whenPressed(new InstantCommand(() -> drivetrain.setDriveSpeed(1)))
-            .whenReleased(new InstantCommand(() -> drivetrain.setDriveSpeed(0.5)));
+            .whenPressed(()->drivetrain.setDriveSpeed(1))
+            .whenReleased(()->drivetrain.setDriveSpeed(0.5));
     }
     
     public Command getAutonomousCommand(){
