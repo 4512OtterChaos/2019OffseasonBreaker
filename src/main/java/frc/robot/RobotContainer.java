@@ -50,8 +50,8 @@ public class RobotContainer {
     public void log(){
         drivetrain.log();
 
-        SmartDashboard.putNumber("Left Y", getY(Hand.kLeft));
-        SmartDashboard.putNumber("Right X", getX(Hand.kRight));
+        SmartDashboard.putNumber("Left Y", controller.getForward());
+        SmartDashboard.putNumber("Right X", controller.getTurn());
     }
 
     private void configureButtonBindings(){
@@ -107,16 +107,5 @@ public class RobotContainer {
     }
     public void stopDrive(){
         drivetrain.tankDrive(0, 0);
-    }
-
-    private double getY(Hand hand){
-        double y = controller.getY(hand);
-        double deadband = 0.1;
-        return -(Math.abs(y) < deadband ? 0:y);
-    }
-    private double getX(Hand hand){
-        double x = controller.getX(hand);
-        double deadband = 0.1;
-        return -(Math.abs(x) < deadband ? 0:x);
     }
 }
