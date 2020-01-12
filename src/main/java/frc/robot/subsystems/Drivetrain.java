@@ -7,7 +7,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.*;
+import static frc.robot.common.Constants.*;
 
 import java.util.Arrays;
 
@@ -83,7 +83,8 @@ public class Drivetrain extends SubsystemBase {
     
     private PIDController leftPIDController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
     private PIDController rightPIDController = new PIDController(kP, kI, kD, kRobotDelta);
-    private SlewRateLimiter sLimiter = new SlewRateLimiter(20.0);
+    private SlewRateLimiter sLimiterLeft = new SlewRateLimiter(kRampVolts);
+    private SlewRateLimiter sLimiterRight = new SlewRateLimiter(kRampVolts);
     
     public Drivetrain(){
         super();
@@ -143,28 +144,11 @@ public class Drivetrain extends SubsystemBase {
     public double[] tankDrive(double left, double right, double driveSpeed){
         left *= driveSpeed;
         right *= driveSpeed;
-        left = Math.copySign(sLimiter.calculate(left), left);
-        right = Math.copySign(sLimiter.calculate(right), right);
+        left = sLimiterLeft.calculate(left);
+        right = sLimiterRight.calculate(right);
         leftMotorA.set(left);
         rightMotorA.set(right);
         return new double[]{left, right};
-    }
-    /**
-     * Converts forward and turn percentages to tank drive percentages.
-     * @return double[] outputs (0 left, 1 right)
-     */
-    public double[] arcadeDrive(double forward, double turn){
-        return arcadeDrive(forward, turn, driveSpeed);
-    }
-    /**
-     * Converts forward and turn percentages to tank drive percentages.
-     * @param driveSpeed Overloads current drivetrain speed
-     * @return double[] outputs (0 left, 1 right)
-     */
-    public double[] arcadeDrive(double forward, double turn, double driveSpeed){
-        double left = (forward - turn);
-        double right = (forward + turn);
-        return tankDrive(left, right, driveSpeed);
     }
     /**
      * Uses PID + FF to achieve given wheel speeds.
@@ -176,8 +160,8 @@ public class Drivetrain extends SubsystemBase {
         double rightVolts = feedForward.calculate(rightMetersPerSecond);
         //double leftVolts = feedForward.calculate(leftMetersPerSecond)+leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
         //double rightVolts = feedForward.calculate(rightMetersPerSecond)+rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
-        leftVolts = Math.copySign(sLimiter.calculate(leftVolts), leftVolts);
-        rightVolts = Math.copySign(sLimiter.calculate(rightVolts), rightVolts);
+        leftVolts = sLimiterLeft.calculate(leftVolts);
+        rightVolts = sLimiterRight.calculate(rightVolts);
         tankDriveVolts(
             leftVolts,
             rightVolts);

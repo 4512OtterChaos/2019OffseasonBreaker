@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot;
+package frc.robot.common;
 
 import edu.wpi.first.wpilibj.util.Units;
 
@@ -23,7 +23,8 @@ public class Constants {
     public static final double kGearRatioLow = 11.12; // shifting gearbox ratio(motor rotations per wheel rotation)
     public static final double kGearRatioHigh = 4.41;
 
-    public static final double kRampRate = 0.08; // seconds to full output
+    public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
+    public static final double kRampVolts = 20; // volts per second(used for slew rate)
     
     public static final double kStaticFF = 0.18; // volts (Given from the characterization tool)
     public static final double kVelocityFF = 4.27; // meters per second

@@ -18,20 +18,16 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 
-import static frc.robot.Constants.*;
+import static frc.robot.common.Constants.*;
 
 /**
  * Holds autonomous trajectories and methods.
  */
 public class Trajectories {
 
-    private DifferentialDriveKinematics kinematics;
-
     private static NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
 
     public Trajectories(DifferentialDriveKinematics kinematics){
-        this.kinematics = kinematics;
-
         ramseteTest = TrajectoryGenerator.generateTrajectory(
             Arrays.asList(
                 new Pose2d(),

@@ -1,6 +1,6 @@
 package frc.robot;
 
-import static frc.robot.Constants.*;
+import static frc.robot.common.Constants.*;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.BasicRamseteTest;
+import frc.robot.common.OCController;
 import frc.robot.common.Trajectories;
 import frc.robot.subsystems.Drivetrain;
 
@@ -27,7 +27,7 @@ public class RobotContainer {
 
     private Compressor compressor = new Compressor();
 
-    private XboxController controller = new XboxController(0);
+    private OCController controller = new OCController(0);
 
     private SendableChooser<Command> commandChooser = new SendableChooser<>();
 
@@ -57,17 +57,19 @@ public class RobotContainer {
     private void configureButtonBindings(){
         RunCommand arcadeDrive = new RunCommand(
             ()->{
-                drivetrain.arcadeDrive(getY(Hand.kLeft), getX(Hand.kRight));
+                double left = controller.getLeftArcade();
+                double right = controller.getRightArcade();
+                drivetrain.tankDrive(left, right);
             }, 
             drivetrain);
         RunCommand PIDDrive = new RunCommand(
             ()->{
-                double linear = getY(Hand.kLeft)*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
-                double angular = (getX(Hand.kRight))*(kMaxRadiansLowGear);
-                ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, angular, drivetrain.getHeading());
-                DifferentialDriveWheelSpeeds angularSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
-                double leftMetersPerSecond = linear + angularSpeeds.leftMetersPerSecond;
-                double rightMetersPerSecond = linear + angularSpeeds.rightMetersPerSecond;
+                double linear = controller.getForward()*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
+                double angular = (controller.getTurn()*(kMaxRadiansLowGear));
+                ChassisSpeeds chassisSpeeds = new ChassisSpeeds(linear, angular, drivetrain.getHeading().getRadians());
+                DifferentialDriveWheelSpeeds wheelSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
+                double leftMetersPerSecond = wheelSpeeds.leftMetersPerSecond;
+                double rightMetersPerSecond = wheelSpeeds.rightMetersPerSecond;
                 drivetrain.setVelocityPID(leftMetersPerSecond, rightMetersPerSecond);
             },
             drivetrain);

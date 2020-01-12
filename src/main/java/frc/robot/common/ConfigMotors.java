@@ -7,7 +7,7 @@
 
 package frc.robot.common;
 
-import static frc.robot.Constants.*;
+import static frc.robot.common.Constants.*;
 
 import java.util.Arrays;
 
@@ -64,8 +64,8 @@ public class ConfigMotors {
             //motor.setSecondaryCurrentLimit(50);
             
             // Ramp motors
-            motor.setOpenLoopRampRate(kRampRate);
-            motor.setClosedLoopRampRate(kRampRate);
+            motor.setOpenLoopRampRate(kRampRaw);
+            motor.setClosedLoopRampRate(kRampRaw);
 
             // Tries to compensate output to minimalize differences between battery voltages actively
             //motor.enableVoltageCompensation(12);

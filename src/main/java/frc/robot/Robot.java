@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 
-import static frc.robot.Constants.*;
+import static frc.robot.common.Constants.*;
 
 /**
 * The VM is configured to automatically run this class, and to call the
