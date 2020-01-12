@@ -63,7 +63,7 @@ public class RobotContainer {
         RunCommand PIDDrive = new RunCommand(
             ()->{
                 double linear = getY(Hand.kLeft)*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
-                double angular = (-getX(Hand.kRight))*(kMaxRadiansLowGear);
+                double angular = (getX(Hand.kRight))*(kMaxRadiansLowGear);
                 ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, angular, drivetrain.getHeading());
                 DifferentialDriveWheelSpeeds angularSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
                 double leftMetersPerSecond = linear + angularSpeeds.leftMetersPerSecond;
@@ -113,8 +113,8 @@ public class RobotContainer {
         return -(Math.abs(y) < deadband ? 0:y);
     }
     private double getX(Hand hand){
-        double x = controller.getX(Hand.kRight);
+        double x = controller.getX(hand);
         double deadband = 0.1;
-        return Math.abs(x) < deadband ? 0:x;
+        return -(Math.abs(x) < deadband ? 0:x);
     }
 }

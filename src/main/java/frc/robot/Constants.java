@@ -25,11 +25,11 @@ public class Constants {
 
     public static final double kRampRate = 0.08; // seconds to full output
     
-    public static final double kStaticFF = 0.2; // volts (Given from the characterization tool)
-    public static final double kVelocityFF = 5; // meters per second
-    public static final double kAccelerationFF = 2; // meters per second squared
+    public static final double kStaticFF = 0.18; // volts (Given from the characterization tool)
+    public static final double kVelocityFF = 4.27; // meters per second
+    public static final double kAccelerationFF = 0.476; // meters per second squared
     
-    public static final double kP = 0.3; // PID Gains (For one meter/second of error, kP volts are applied)
+    public static final double kP = 35; // PID Gains (For one meter/second of error, kP volts are applied)
     public static final double kI = 0; // These shouldn't be necessary for velocity
     public static final double kD = 0;
     
@@ -38,9 +38,9 @@ public class Constants {
     //--------------------
     
     //--------------------Autonomous
-    public static final double kMaxMetersLowGear = Units.feetToMeters(7.5); // Velocity
+    public static final double kMaxMetersLowGear = Units.feetToMeters(7.75); // Velocity
     public static final double kMaxMetersHighGear = Units.feetToMeters(15);
     public static final double kMaxAccelerationMeters = Units.feetToMeters(2.5);
-    public static final double kMaxRadiansLowGear = 7.5;
+    public static final double kMaxRadiansLowGear = 7.75;
     //--------------------
 }

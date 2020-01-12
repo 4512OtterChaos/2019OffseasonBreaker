@@ -83,6 +83,7 @@ public class Drivetrain extends SubsystemBase {
     
     private PIDController leftPIDController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
     private PIDController rightPIDController = new PIDController(kP, kI, kD, kRobotDelta);
+    private SlewRateLimiter sLimiter = new SlewRateLimiter(20.0);
     
     public Drivetrain(){
         super();
@@ -142,6 +143,8 @@ public class Drivetrain extends SubsystemBase {
     public double[] tankDrive(double left, double right, double driveSpeed){
         left *= driveSpeed;
         right *= driveSpeed;
+        left = Math.copySign(sLimiter.calculate(left), left);
+        right = Math.copySign(sLimiter.calculate(right), right);
         leftMotorA.set(left);
         rightMotorA.set(right);
         return new double[]{left, right};
@@ -159,8 +162,8 @@ public class Drivetrain extends SubsystemBase {
      * @return double[] outputs (0 left, 1 right)
      */
     public double[] arcadeDrive(double forward, double turn, double driveSpeed){
-        double left = (forward + turn);
-        double right = (forward - turn);
+        double left = (forward - turn);
+        double right = (forward + turn);
         return tankDrive(left, right, driveSpeed);
     }
     /**
@@ -169,13 +172,15 @@ public class Drivetrain extends SubsystemBase {
      */
     public void setVelocityPID(double leftMetersPerSecond, double rightMetersPerSecond){
         DifferentialDriveWheelSpeeds speeds  = getWheelSpeeds();
-        //double leftVolts = feedForward.calculate(leftMetersPerSecond);
-        //double rightVolts = feedForward.calculate(rightMetersPerSecond);
+        double leftVolts = feedForward.calculate(leftMetersPerSecond);
+        double rightVolts = feedForward.calculate(rightMetersPerSecond);
+        //double leftVolts = feedForward.calculate(leftMetersPerSecond)+leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
+        //double rightVolts = feedForward.calculate(rightMetersPerSecond)+rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
+        leftVolts = Math.copySign(sLimiter.calculate(leftVolts), leftVolts);
+        rightVolts = Math.copySign(sLimiter.calculate(rightVolts), rightVolts);
         tankDriveVolts(
-            feedForward.calculate(leftMetersPerSecond)+
-            leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond),
-            feedForward.calculate(rightMetersPerSecond)+
-            rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond));
+            leftVolts,
+            rightVolts);
     }
     public PIDController getLeftPIDController(){
         return leftPIDController;
@@ -237,7 +242,7 @@ public class Drivetrain extends SubsystemBase {
             (rightEncoder.getVelocity() / getReductionRatio() * circumference) / 60.0);
     }
     public double getEncoderDistance(CANEncoder encoder){
-        return encoder.getPosition() * Math.PI * 2.0 * kWheelRadiusMeters;
+        return encoder.getPosition() / Gear.LOW.getRatio() * (Math.PI * 2.0 * kWheelRadiusMeters);
     }
 
     public SimpleMotorFeedforward getFeedForward(){
