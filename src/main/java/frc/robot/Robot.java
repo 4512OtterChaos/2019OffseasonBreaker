@@ -64,8 +64,7 @@ public class Robot extends TimedRobot {
     */
     @Override
     public void disabledInit() {
-        container.stopDrive();
-        container.setDriveCoast(true);
+        container.disable();
     }
     
     @Override

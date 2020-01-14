@@ -133,33 +133,33 @@ public class Drivetrain extends SubsystemBase {
      * Sets both sides of the drivetrain to given percentages
      * @return double[] outputs (0 left, 1 right)
      */
-    public double[] tankDrive(double left, double right){
-        return tankDrive(left, right, driveSpeed);
+    public void tankDrive(double left, double right){
+        tankDrive(left, right, driveSpeed);
     }
     /**
      * Sets both sides of the drivetrain to given percentages
      * @param driveSpeed Overloads current drivetrain speed
      * @return double[] outputs (0 left, 1 right)
      */
-    public double[] tankDrive(double left, double right, double driveSpeed){
+    public void tankDrive(double left, double right, double driveSpeed){
         left *= driveSpeed;
         right *= driveSpeed;
-        left = sLimiterLeft.calculate(left);
-        right = sLimiterRight.calculate(right);
-        leftMotorA.set(left);
-        rightMotorA.set(right);
-        return new double[]{left, right};
+        left = sLimiterLeft.calculate(left*12);
+        right = sLimiterRight.calculate(right*12);
+        tankDriveVolts(left, right);
     }
     /**
      * Uses PID + FF to achieve given wheel speeds.
      * <p><b>! Note: All inputs are in meters and all outputs are in volts.
      */
     public void setVelocityPID(double leftMetersPerSecond, double rightMetersPerSecond){
+        leftMetersPerSecond *= driveSpeed;
+        rightMetersPerSecond *= driveSpeed;
         DifferentialDriveWheelSpeeds speeds  = getWheelSpeeds();
-        double leftVolts = feedForward.calculate(leftMetersPerSecond);
-        double rightVolts = feedForward.calculate(rightMetersPerSecond);
-        //double leftVolts = feedForward.calculate(leftMetersPerSecond)+leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
-        //double rightVolts = feedForward.calculate(rightMetersPerSecond)+rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
+        //double leftVolts = feedForward.calculate(leftMetersPerSecond);
+        //double rightVolts = feedForward.calculate(rightMetersPerSecond);
+        double leftVolts = feedForward.calculate(leftMetersPerSecond)+leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
+        double rightVolts = feedForward.calculate(rightMetersPerSecond)+rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
         leftVolts = sLimiterLeft.calculate(leftVolts);
         rightVolts = sLimiterRight.calculate(rightVolts);
         tankDriveVolts(
@@ -240,7 +240,7 @@ public class Drivetrain extends SubsystemBase {
     public Rotation2d getHeading(){
         pigeon.getYawPitchRoll(ypr);
         pigeon.getRawGyro(xyz);
-        return Rotation2d.fromDegrees(-ypr[0]);
+        return Rotation2d.fromDegrees(ypr[0]);
     }
     public DifferentialDriveOdometry getOdometry(){
         return odometry;

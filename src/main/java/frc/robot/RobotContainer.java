@@ -4,12 +4,16 @@ import static frc.robot.common.Constants.*;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -29,6 +33,9 @@ public class RobotContainer {
 
     private OCController controller = new OCController(0);
 
+    private AddressableLED led;
+    private AddressableLEDBuffer ledBuffer;
+
     private SendableChooser<Command> commandChooser = new SendableChooser<>();
 
     public RobotContainer() {
@@ -36,6 +43,14 @@ public class RobotContainer {
         trajectories = new Trajectories(drivetrain.getKinematics());
 
         drivetrain.shift(Drivetrain.Gear.LOW);
+
+        led = new AddressableLED(9);
+        ledBuffer = new AddressableLEDBuffer(149);
+        led.setLength(ledBuffer.getLength());
+
+        for(int i=0;i<ledBuffer.getLength();i++){
+            ledBuffer.setHSV(i, 56, 255, 128);
+        }
 
         configureButtonBindings(); // Attach functionality to controller
 
@@ -49,6 +64,9 @@ public class RobotContainer {
 
     public void log(){
         drivetrain.log();
+
+        led.setData(ledBuffer);
+        led.start();
 
         SmartDashboard.putNumber("Left Y", controller.getForward());
         SmartDashboard.putNumber("Right X", controller.getTurn());
@@ -66,7 +84,7 @@ public class RobotContainer {
             ()->{
                 double linear = controller.getForward()*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
                 double angular = (controller.getTurn()*(kMaxRadiansLowGear));
-                ChassisSpeeds chassisSpeeds = new ChassisSpeeds(linear, angular, drivetrain.getHeading().getRadians());
+                ChassisSpeeds chassisSpeeds = new ChassisSpeeds(linear, 0, angular);
                 DifferentialDriveWheelSpeeds wheelSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
                 double leftMetersPerSecond = wheelSpeeds.leftMetersPerSecond;
                 double rightMetersPerSecond = wheelSpeeds.rightMetersPerSecond;
@@ -94,7 +112,7 @@ public class RobotContainer {
     }
 
     public void resetOdometry(){
-        drivetrain.resetOdometry();
+        drivetrain.resetOdometry(new Rotation2d());
     }
 
     public void setDriveCoast(boolean is){
@@ -105,7 +123,8 @@ public class RobotContainer {
             drivetrain.setIdleMode(IdleMode.kBrake);
         }
     }
-    public void stopDrive(){
+    public void disable(){
         drivetrain.tankDrive(0, 0);
+        setDriveCoast(true);
     }
 }

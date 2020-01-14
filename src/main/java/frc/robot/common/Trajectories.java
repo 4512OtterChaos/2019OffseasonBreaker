@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.trajectory.constraint.TrajectoryConstraint;
+import edu.wpi.first.wpilibj.util.Units;
 
 import static frc.robot.common.Constants.*;
 
@@ -31,8 +33,9 @@ public class Trajectories {
         ramseteTest = TrajectoryGenerator.generateTrajectory(
             Arrays.asList(
                 new Pose2d(),
-                new Pose2d(1, 0.0, new Rotation2d()),
-                new Pose2d(2, 1, new Rotation2d(90))
+                new Pose2d(0.75, 0.0, new Rotation2d()),
+                new Pose2d(1.5, 0.75, new Rotation2d(45)),
+                new Pose2d(2.5, 0, new Rotation2d())
             ),
             new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters).setKinematics(kinematics));
     }
@@ -44,8 +47,8 @@ public class Trajectories {
      */
     public static void logTrajectory(Trajectory trajectory, double timeSeconds){
         Pose2d currPose = trajectory.sample(timeSeconds).poseMeters; // current pose
-        liveTable.getEntry("pathX").setDouble(currPose.getTranslation().getX());
-        liveTable.getEntry("pathY").setDouble(currPose.getTranslation().getY());
+        liveTable.getEntry("pathX").setDouble(Units.metersToFeet(currPose.getTranslation().getX()));
+        liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY()));
         liveTable.getEntry("robotHeading").setDouble(currPose.getRotation().getRadians());
     }
 
