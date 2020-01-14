@@ -2,4 +2,4 @@
 
 # Breaker - 2019 Offseason Project
 
-Welcome to the official repository of Otter Chaos's 2019 offseason project.
+Welcome to the official repository of Otter Chaos's 2019 offseason project. View our reveal video [here](https://www.youtube.com/watch?v=fiBvNyQz40s)!
