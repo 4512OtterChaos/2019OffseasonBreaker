@@ -23,6 +23,9 @@ public class Constants {
     public static final double kGearRatioLow = 11.12; // shifting gearbox ratio(motor rotations per wheel rotation)
     public static final double kGearRatioHigh = 4.41;
 
+    public static final int kDriveStallCurrentLimit = 65;
+    public static final int kDriveFreeCurrentLimit = 35; 
+
     public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
     public static final double kRampVolts = 12.0 / (0.2); // volts per second(used for slew rate)
     

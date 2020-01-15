@@ -9,8 +9,6 @@ package frc.robot.common;
 
 import static frc.robot.common.Constants.*;
 
-import java.util.Arrays;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -19,34 +17,23 @@ import com.revrobotics.CANSparkMax.IdleMode;
  */
 public class ConfigMotors {
 
-    
     /**
      * Configures each motor given with drive settings.
-     * <p>If using this overload, one half of the array will be inverted(one side), as well as the motors
-     * after the first left and right motors becoming followers.
-     * <p><b>! Note: Motor count must be even
-     * @param rightInverted Is right or left inverted
-     * @param motors Array of drive motors, ordered from left to right
+     * Sets followers and inverts.
+     * @param isRightInverted Is right or left inverted
      */
-    public static void configDriveMotors(boolean rightInverted, CANSparkMax... motors){
-        
-        configDriveMotors(motors);
-        
-        int firstRightIndex = motors.length/2;
-        if(motors.length > 1 && motors.length%2 == 0){
-            for(int i=0;i<motors.length;i++){
-                if(i<firstRightIndex){
-                    motors[i].setInverted(!rightInverted);
-                    if(i>0) motors[i].follow(motors[0]);
-                }
-                else{
-                    motors[i].setInverted(rightInverted);
-                    if(i>firstRightIndex) motors[i].follow(motors[firstRightIndex]);
-                }
-            }
+    public static void configDriveMotors(CANSparkMax[] leftMotors, CANSparkMax[] rightMotors, boolean isRightInverted){
+        for(int i=0;i<leftMotors.length;i++){
+            leftMotors[i].setInverted(!isRightInverted);
+            if(i>0) leftMotors[i].follow(leftMotors[0]);
+        }
+        for(int i=0;i<rightMotors.length;i++){
+            rightMotors[i].setInverted(isRightInverted);
+            if(i>0) rightMotors[i].follow(rightMotors[0]);
         }
 
-        //if(motors[4].getInverted()==false)  configDriveMotors(rightInverted, motors);
+        configDriveMotors(leftMotors);
+        configDriveMotors(rightMotors);
     }
     /**
      * Configures each motor given with drive settings.
@@ -54,25 +41,28 @@ public class ConfigMotors {
      * @param motors Array of drive motors
      */
     public static void configDriveMotors(CANSparkMax... motors){
-        Arrays.stream(motors).forEach(motor ->{
+        for(CANSparkMax motor:motors){
             // Make sure motor config is clean
-            motor.setCANTimeout(50);
             motor.restoreFactoryDefaults();
+
+            configMotors(motors);
             
-            // Current limits (don't kill the motors)
-            motor.setSmartCurrentLimit(40);
-            //motor.setSecondaryCurrentLimit(50);
-            
+            // Save config
+            motor.burnFlash();
+        };
+    }
+    public static void configMotors(CANSparkMax... motors){
+        configMotors(kDriveStallCurrentLimit, kDriveFreeCurrentLimit, motors);
+    }
+    public static void configMotors(int stallLimit, int freeLimit, CANSparkMax... motors){
+        for(CANSparkMax motor:motors){
             // Ramp motors
             motor.setOpenLoopRampRate(kRampRaw);
             motor.setClosedLoopRampRate(kRampRaw);
 
-            // Tries to compensate output to minimalize differences between battery voltages actively
-            //motor.enableVoltageCompensation(12);
-            
-            // Save config
-            motor.burnFlash();
-        });
+            // Current limits (don't kill the motors)
+            motor.setSmartCurrentLimit(stallLimit, freeLimit);
+        }
     }
 
     /**
@@ -81,7 +71,7 @@ public class ConfigMotors {
      * @param motors Motors to set
      */
     public static void setIdleMode(IdleMode mode, CANSparkMax... motors){
-        Arrays.stream(motors).forEach(motor -> motor.setIdleMode(mode));
+        for(CANSparkMax motor:motors) motor.setIdleMode(mode);
     }
 
 }

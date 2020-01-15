@@ -67,7 +67,8 @@ public class Drivetrain extends SubsystemBase {
 
     private double driveSpeed = 0.5;
     
-    private final CANSparkMax[] motors = {leftMotorA, leftMotorB, leftMotorC, rightMotorA, rightMotorB, rightMotorC};
+    private final CANSparkMax[] leftMotors = {leftMotorA, leftMotorB, leftMotorC};
+    private final CANSparkMax[] rightMotors = {rightMotorA, rightMotorB, rightMotorC};
     
     private final PigeonIMU pigeon = new PigeonIMU(1);
     private double[] ypr = new double[3]; // yaw, pitch, roll degrees
@@ -95,7 +96,7 @@ public class Drivetrain extends SubsystemBase {
         resetEncoders();
         resetGyro();
         
-        ConfigMotors.configDriveMotors(true, motors); // set motor configuration
+        ConfigMotors.configDriveMotors(leftMotors, rightMotors, true); // set motor configuration
 
         odometry = new DifferentialDriveOdometry(getHeading());
     }
@@ -115,7 +116,8 @@ public class Drivetrain extends SubsystemBase {
     }
     
     public void setIdleMode(IdleMode mode){
-        ConfigMotors.setIdleMode(mode, motors);
+        ConfigMotors.setIdleMode(mode, leftMotors);
+        ConfigMotors.setIdleMode(mode, rightMotors);
     }
     
     /**
