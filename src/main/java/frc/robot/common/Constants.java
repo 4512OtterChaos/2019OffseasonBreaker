@@ -44,7 +44,9 @@ public class Constants {
     //--------------------Autonomous
     public static final double kMaxMetersLowGear = Units.feetToMeters(8); // Velocity
     public static final double kMaxMetersHighGear = Units.feetToMeters(15);
-    public static final double kMaxAccelerationMeters = Units.feetToMeters(1.25);
-    public static final double kMaxRadiansLowGear = 7.75;
+    public static final double kMaxAccelerationMeters = Units.feetToMeters(3.5);
+    public static final double kMaxRadiansLowGear = Units.degreesToRadians(450); // Rotations per second
+    public static final double kMaxCentripetalAccelerationMeters = 
+        Math.pow(kMaxRadiansLowGear/4.0, 2)*(kTrackWidthMeters/2.0); // Turning acceleration given radius
     //--------------------
 }

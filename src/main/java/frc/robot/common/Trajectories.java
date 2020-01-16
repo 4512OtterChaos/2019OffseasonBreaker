@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.wpilibj.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.wpilibj.util.Units;
 
@@ -29,6 +30,11 @@ public class Trajectories {
 
     private static NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
 
+    //----- Trajectories
+    public final Trajectory ramseteTest;
+    public final Trajectory ramseteForward;
+    //-----
+
     public Trajectories(DifferentialDriveKinematics kinematics){
         ramseteTest = TrajectoryGenerator.generateTrajectory(
             Arrays.asList(
@@ -37,6 +43,14 @@ public class Trajectories {
                 new Pose2d(1.5, 0.75, new Rotation2d(45)),
                 new Pose2d(2.5, 0, new Rotation2d())
             ),
+            new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters).setKinematics(kinematics)
+                .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)));
+                
+        ramseteForward = TrajectoryGenerator.generateTrajectory(
+            Arrays.asList(
+                new Pose2d(),
+                new Pose2d(1, 0, new Rotation2d())
+            ), 
             new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters).setKinematics(kinematics));
     }
 
@@ -51,8 +65,4 @@ public class Trajectories {
         liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY()));
         liveTable.getEntry("robotHeading").setDouble(currPose.getRotation().getRadians());
     }
-
-    //----- Trajectories
-    public final Trajectory ramseteTest;
-    //-----
 }

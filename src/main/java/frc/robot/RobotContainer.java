@@ -56,8 +56,10 @@ public class RobotContainer {
 
         commandChooser.setDefaultOption("Nothing", new InstantCommand(() -> drivetrain.tankDrive(0,0), drivetrain));
         commandChooser.addOption("Ramsete Test", 
-            new BasicRamseteTest(drivetrain, trajectories)
-                .andThen(() -> drivetrain.tankDrive(0,0))
+            new BasicRamseteTest(drivetrain, trajectories.ramseteTest)
+        );
+        commandChooser.addOption("Ramsete Forward", 
+            new BasicRamseteTest(drivetrain, trajectories.ramseteForward)
         );
         SmartDashboard.putData("Auto mode", commandChooser);
     }

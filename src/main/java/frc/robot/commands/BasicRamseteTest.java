@@ -19,15 +19,16 @@ import frc.robot.common.Trajectories;
  */
 public class BasicRamseteTest extends RamseteCommand{
 
+    Drivetrain drivetrain;
     Trajectory trajectory;
     Timer timer = new Timer();
 
     /**
-     * Construct ramsete command using drivetrain and following test path
+     * Construct ramsete command using drivetrain and following given trajectory
      */
-    public BasicRamseteTest(Drivetrain drivetrain, Trajectories trajectories){
+    public BasicRamseteTest(Drivetrain drivetrain, Trajectory trajectory){
         super(
-            trajectories.ramseteTest,
+            trajectory,
             () -> drivetrain.getOdometry().getPoseMeters(),
             new RamseteController(),
             drivetrain.getFeedForward(),
@@ -39,7 +40,8 @@ public class BasicRamseteTest extends RamseteCommand{
             drivetrain
         );
 
-        trajectory = trajectories.ramseteTest;
+        this.drivetrain = drivetrain;
+        this.trajectory = trajectory;
     }
 
     @Override
@@ -62,5 +64,6 @@ public class BasicRamseteTest extends RamseteCommand{
         super.end(interrupted);
 
         timer.stop();
+        drivetrain.tankDrive(0, 0);
     }
 }

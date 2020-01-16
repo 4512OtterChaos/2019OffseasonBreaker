@@ -23,45 +23,54 @@ public class ConfigMotors {
      * @param isRightInverted Is right or left inverted
      */
     public static void configDriveMotors(CANSparkMax[] leftMotors, CANSparkMax[] rightMotors, boolean isRightInverted){
+        configMotors(leftMotors);
+        configMotors(rightMotors);
+
         for(int i=0;i<leftMotors.length;i++){
-            leftMotors[i].setInverted(!isRightInverted);
             if(i>0) leftMotors[i].follow(leftMotors[0]);
+            else leftMotors[i].setInverted(!isRightInverted);
         }
         for(int i=0;i<rightMotors.length;i++){
-            rightMotors[i].setInverted(isRightInverted);
             if(i>0) rightMotors[i].follow(rightMotors[0]);
+            else rightMotors[i].setInverted(isRightInverted);
         }
 
-        configDriveMotors(leftMotors);
-        configDriveMotors(rightMotors);
+        saveConfig(leftMotors);
+        saveConfig(rightMotors);
     }
+
     /**
      * Configures each motor given with drive settings.
      * <p>Does not invert nor set followers.
      * @param motors Array of drive motors
      */
-    public static void configDriveMotors(CANSparkMax... motors){
+    public static void configMotors(CANSparkMax... motors){
+        configMotors(kDriveStallCurrentLimit, kDriveFreeCurrentLimit, motors);
+    }
+    /**
+     * Configures each motor given with default settings.
+     * <p>Does not invert nor set followers.
+     * @param motors Array of drive motors
+     */
+    public static void configMotors(int stallLimit, int freeLimit, CANSparkMax... motors){
         for(CANSparkMax motor:motors){
             // Make sure motor config is clean
             motor.restoreFactoryDefaults();
 
-            configMotors(motors);
-            
-            // Save config
-            motor.burnFlash();
-        };
-    }
-    public static void configMotors(CANSparkMax... motors){
-        configMotors(kDriveStallCurrentLimit, kDriveFreeCurrentLimit, motors);
-    }
-    public static void configMotors(int stallLimit, int freeLimit, CANSparkMax... motors){
-        for(CANSparkMax motor:motors){
             // Ramp motors
             motor.setOpenLoopRampRate(kRampRaw);
             motor.setClosedLoopRampRate(kRampRaw);
 
             // Current limits (don't kill the motors)
             motor.setSmartCurrentLimit(stallLimit, freeLimit);
+        }
+    }
+    /**
+     * Burns configuration to flash on given motors.
+     */
+    public static void saveConfig(CANSparkMax... motors){
+        for(CANSparkMax  motor:motors){
+            motor.burnFlash();
         }
     }
 
