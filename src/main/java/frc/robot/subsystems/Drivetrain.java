@@ -157,7 +157,7 @@ public class Drivetrain extends SubsystemBase {
     public void setVelocityPID(double leftMetersPerSecond, double rightMetersPerSecond){
         leftMetersPerSecond *= driveSpeed;
         rightMetersPerSecond *= driveSpeed;
-        DifferentialDriveWheelSpeeds speeds  = getWheelSpeeds();
+        DifferentialDriveWheelSpeeds speeds = getWheelSpeeds();
         //double leftVolts = feedForward.calculate(leftMetersPerSecond);
         //double rightVolts = feedForward.calculate(rightMetersPerSecond);
         double leftVolts = feedForward.calculate(leftMetersPerSecond)+leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);

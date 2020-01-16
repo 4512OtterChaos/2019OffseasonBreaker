@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -40,7 +41,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         drivetrain = new Drivetrain();
-        trajectories = new Trajectories(drivetrain.getKinematics());
+        trajectories = new Trajectories(drivetrain);
 
         drivetrain.shift(Drivetrain.Gear.LOW);
 
@@ -49,26 +50,30 @@ public class RobotContainer {
         led.setLength(ledBuffer.getLength());
 
         for(int i=0;i<ledBuffer.getLength();i++){
-            ledBuffer.setHSV(i, 56, 255, 128);
+            ledBuffer.setLED(i, new Color8Bit(Color.kFloralWhite));;
         }
+
+        led.setData(ledBuffer);
+        led.start();
 
         configureButtonBindings(); // Attach functionality to controller
 
         commandChooser.setDefaultOption("Nothing", new InstantCommand(() -> drivetrain.tankDrive(0,0), drivetrain));
-        commandChooser.addOption("Ramsete Test", 
-            new BasicRamseteTest(drivetrain, trajectories.ramseteTest)
-        );
         commandChooser.addOption("Ramsete Forward", 
-            new BasicRamseteTest(drivetrain, trajectories.ramseteForward)
+            new BasicRamseteTest(drivetrain, trajectories.forward)
         );
+        commandChooser.addOption("Ramsete Test", 
+            new BasicRamseteTest(drivetrain, trajectories.example)
+        );
+        commandChooser.addOption("Ramsete Cycle",
+            new BasicRamseteTest(drivetrain, trajectories.example)
+            .andThen(new BasicRamseteTest(drivetrain, trajectories.exampleBackwards)));
         SmartDashboard.putData("Auto mode", commandChooser);
     }
 
     public void log(){
         drivetrain.log();
-
         led.setData(ledBuffer);
-        led.start();
 
         SmartDashboard.putNumber("Left Y", controller.getForward());
         SmartDashboard.putNumber("Right X", controller.getTurn());

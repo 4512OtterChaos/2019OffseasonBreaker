@@ -8,18 +8,20 @@
 package frc.robot.common;
 
 import java.util.Arrays;
+import java.util.List;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.constraint.CentripetalAccelerationConstraint;
+import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.wpilibj.util.Units;
+import frc.robot.subsystems.Drivetrain;
 
 import static frc.robot.common.Constants.*;
 
@@ -31,27 +33,39 @@ public class Trajectories {
     private static NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
 
     //----- Trajectories
-    public final Trajectory ramseteTest;
-    public final Trajectory ramseteForward;
+    public final Trajectory forward;
+    public final Trajectory example;
+    public final Trajectory exampleBackwards;
     //-----
 
-    public Trajectories(DifferentialDriveKinematics kinematics){
-        ramseteTest = TrajectoryGenerator.generateTrajectory(
+    public Trajectories(Drivetrain drive){
+        TrajectoryConfig config = new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters)
+            .setKinematics(drive.getKinematics()) // Measure geometry
+            .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
+            .addConstraint(new DifferentialDriveVoltageConstraint(drive.getFeedForward(), drive.getKinematics(), 10.5)); // Account for voltage sag
+
+        List<Pose2d> examplePoses = 
             Arrays.asList(
                 new Pose2d(),
                 new Pose2d(0.75, 0.0, new Rotation2d()),
                 new Pose2d(1.5, 0.75, new Rotation2d(45)),
                 new Pose2d(2.5, 0, new Rotation2d())
-            ),
-            new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters).setKinematics(kinematics)
-                .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)));
-                
-        ramseteForward = TrajectoryGenerator.generateTrajectory(
+            );
+
+        forward = TrajectoryGenerator.generateTrajectory(
             Arrays.asList(
                 new Pose2d(),
                 new Pose2d(1, 0, new Rotation2d())
             ), 
-            new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters).setKinematics(kinematics));
+            config);
+
+        example = TrajectoryGenerator.generateTrajectory(
+            examplePoses,
+            config);
+
+        exampleBackwards = TrajectoryGenerator.generateTrajectory(
+            examplePoses,
+            config.setReversed(true));
     }
 
     /**
