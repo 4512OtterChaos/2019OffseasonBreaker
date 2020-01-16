@@ -33,12 +33,16 @@ public class Trajectories {
     private static NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
 
     //----- Trajectories
-    public final Trajectory forward;
+    public final Trajectory forward; // our different paths
     public final Trajectory example;
     public final Trajectory exampleBackwards;
     //-----
 
+    /**
+     * Generates autonomous paths given a drivetrain.
+     */
     public Trajectories(Drivetrain drive){
+        // Configuration, or behavior, of the path following
         TrajectoryConfig config = new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters)
             .setKinematics(drive.getKinematics()) // Measure geometry
             .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
@@ -52,6 +56,7 @@ public class Trajectories {
                 new Pose2d(2.5, 0, new Rotation2d())
             );
 
+        // Straight forward 1 meter
         forward = TrajectoryGenerator.generateTrajectory(
             Arrays.asList(
                 new Pose2d(),
@@ -59,13 +64,16 @@ public class Trajectories {
             ), 
             config);
 
+        // Take a little detour left and back while going forward
         example = TrajectoryGenerator.generateTrajectory(
             examplePoses,
             config);
-
+        // ...but in reverse
         exampleBackwards = TrajectoryGenerator.generateTrajectory(
             examplePoses,
             config.setReversed(true));
+
+        // For Pathweaver, do TrajectoryUtil.fromPathweaverJson()
     }
 
     /**
@@ -77,6 +85,6 @@ public class Trajectories {
         Pose2d currPose = trajectory.sample(timeSeconds).poseMeters; // current pose
         liveTable.getEntry("pathX").setDouble(Units.metersToFeet(currPose.getTranslation().getX()));
         liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY()));
-        liveTable.getEntry("robotHeading").setDouble(currPose.getRotation().getRadians());
+        liveTable.getEntry("isFollowingPath").setBoolean(timeSeconds <= trajectory.getTotalTimeSeconds());
     }
 }

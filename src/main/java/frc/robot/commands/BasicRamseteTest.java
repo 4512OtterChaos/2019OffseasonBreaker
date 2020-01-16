@@ -63,6 +63,7 @@ public class BasicRamseteTest extends RamseteCommand{
     public void end(boolean interrupted){
         super.end(interrupted);
 
+        Trajectories.logTrajectory(trajectory, trajectory.getTotalTimeSeconds()+1);
         timer.stop();
         drivetrain.tankDrive(0, 0);
     }
