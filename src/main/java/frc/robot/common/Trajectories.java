@@ -51,9 +51,8 @@ public class Trajectories {
         List<Pose2d> examplePoses = 
             Arrays.asList(
                 new Pose2d(),
-                new Pose2d(0.75, 0.0, new Rotation2d()),
-                new Pose2d(1.5, 0.75, new Rotation2d(45)),
-                new Pose2d(2.5, 0, new Rotation2d())
+                new Pose2d(0.9, 0.9, new Rotation2d(90)),
+                new Pose2d(1.8, 0, new Rotation2d())
             );
 
         // Straight forward 1 meter
