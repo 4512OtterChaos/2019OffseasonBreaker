@@ -50,7 +50,7 @@ public class RobotContainer {
         led.setLength(ledBuffer.getLength());
 
         for(int i=0;i<ledBuffer.getLength();i++){
-            ledBuffer.setLED(i, new Color8Bit(Color.kFloralWhite));;
+            ledBuffer.setRGB(i, 251, 108, 14);
         }
 
         led.setData(ledBuffer);
@@ -59,15 +59,20 @@ public class RobotContainer {
         configureButtonBindings(); // Attach functionality to controller
 
         commandChooser.setDefaultOption("Nothing", new InstantCommand(() -> drivetrain.tankDrive(0,0), drivetrain));
-        commandChooser.addOption("Ramsete Forward", 
+        commandChooser.addOption("Forward", 
             new BasicRamseteTest(drivetrain, trajectories.forward)
         );
-        commandChooser.addOption("Ramsete Test", 
+        commandChooser.addOption("Forward Cycle", 
+            new BasicRamseteTest(drivetrain, trajectories.forward)
+            .andThen(new BasicRamseteTest(drivetrain, trajectories.backward))
+        );
+        commandChooser.addOption("Test", 
             new BasicRamseteTest(drivetrain, trajectories.example)
         );
-        commandChooser.addOption("Ramsete Cycle",
+        commandChooser.addOption("Test Cycle",
             new BasicRamseteTest(drivetrain, trajectories.example)
-            .andThen(new BasicRamseteTest(drivetrain, trajectories.exampleBackwards)));
+            .andThen(new BasicRamseteTest(drivetrain, trajectories.exampleBackwards))
+        );
         SmartDashboard.putData("Auto mode", commandChooser);
     }
 

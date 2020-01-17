@@ -8,7 +8,9 @@
 package frc.robot.common;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -34,6 +36,7 @@ public class Trajectories {
 
     //----- Trajectories
     public final Trajectory forward; // our different paths
+    public final Trajectory backward;
     public final Trajectory example;
     public final Trajectory exampleBackwards;
     //-----
@@ -46,14 +49,16 @@ public class Trajectories {
         TrajectoryConfig config = new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters)
             .setKinematics(drive.getKinematics()) // Measure geometry
             .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
-            .addConstraint(new DifferentialDriveVoltageConstraint(drive.getFeedForward(), drive.getKinematics(), 10.5)); // Account for voltage sag
+            .addConstraint(new DifferentialDriveVoltageConstraint(drive.getFeedForward(), drive.getKinematics(), 10)); // Account for voltage sag
 
         List<Pose2d> examplePoses = 
             Arrays.asList(
                 new Pose2d(),
-                new Pose2d(0.9, 0.9, new Rotation2d(90)),
-                new Pose2d(1.8, 0, new Rotation2d())
+                new Pose2d(1.2, 0.8, new Rotation2d()),
+                new Pose2d(2.4, 0, new Rotation2d())
             );
+        List<Pose2d> examplePosesReverse = examplePoses.stream().collect(Collectors.toList());
+        Collections.reverse(examplePosesReverse);
 
         // Straight forward 1 meter
         forward = TrajectoryGenerator.generateTrajectory(
@@ -61,15 +66,21 @@ public class Trajectories {
                 new Pose2d(),
                 new Pose2d(1, 0, new Rotation2d())
             ), 
-            config);
-
+            config.setReversed(false));
+        
+        backward = TrajectoryGenerator.generateTrajectory(
+            Arrays.asList(
+                new Pose2d(1, 0, new Rotation2d()),
+                new Pose2d()
+            ), 
+            config.setReversed(true));
         // Take a little detour left and back while going forward
         example = TrajectoryGenerator.generateTrajectory(
             examplePoses,
-            config);
+            config.setReversed(false));
         // ...but in reverse
         exampleBackwards = TrajectoryGenerator.generateTrajectory(
-            examplePoses,
+            examplePosesReverse,
             config.setReversed(true));
 
         // For Pathweaver, do TrajectoryUtil.fromPathweaverJson()
@@ -82,8 +93,8 @@ public class Trajectories {
      */
     public static void logTrajectory(Trajectory trajectory, double timeSeconds){
         Pose2d currPose = trajectory.sample(timeSeconds).poseMeters; // current pose
-        liveTable.getEntry("pathX").setDouble(Units.metersToFeet(currPose.getTranslation().getX()));
-        liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY()));
+        liveTable.getEntry("pathX").setDouble(Units.metersToFeet(currPose.getTranslation().getX())+5);
+        liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY())+13);
         liveTable.getEntry("isFollowingPath").setBoolean(timeSeconds <= trajectory.getTotalTimeSeconds());
     }
 }

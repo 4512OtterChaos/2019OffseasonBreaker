@@ -24,16 +24,16 @@ public class Constants {
     public static final double kGearRatioHigh = 4.41;
 
     public static final int kDriveStallCurrentLimit = 65;
-    public static final int kDriveFreeCurrentLimit = 35; 
+    public static final int kDriveFreeCurrentLimit = 35;
 
     public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
     public static final double kRampVolts = 12.0 / (0.2); // volts per second(used for slew rate)
     
-    public static final double kStaticFF = 0.18; // volts (Given from the characterization tool)
-    public static final double kVelocityFF = 4.27; // meters per second
-    public static final double kAccelerationFF = 0.476; // meters per second squared
+    public static final double kStaticFF = 0.183; // volts (Given from the characterization tool)
+    public static final double kVelocityFF = 4.29; // meters per second
+    public static final double kAccelerationFF = 0.428; // meters per second squared
     
-    public static final double kP = 0.4; // PID Gains (For one meter/second of error, kP volts are applied)
+    public static final double kP = 1; // PID Gains (For one meter/second of error, kP volts are applied)
     public static final double kI = 0; // These shouldn't be necessary for velocity
     public static final double kD = 0;
     
@@ -46,6 +46,6 @@ public class Constants {
     public static final double kMaxMetersHighGear = Units.feetToMeters(15);
     public static final double kMaxAccelerationMeters = Units.feetToMeters(4);
     public static final double kMaxRadiansLowGear = Units.degreesToRadians(450); // Rotations per second
-    public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(4); // Turning acceleration given radius
+    public static final double kMaxCentripetalAccelerationMeters = Units.feetToMeters(3.5); // Turning acceleration given radius
     //--------------------
 }

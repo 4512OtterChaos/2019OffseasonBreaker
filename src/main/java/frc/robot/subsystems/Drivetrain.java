@@ -158,10 +158,14 @@ public class Drivetrain extends SubsystemBase {
         leftMetersPerSecond *= driveSpeed;
         rightMetersPerSecond *= driveSpeed;
         DifferentialDriveWheelSpeeds speeds = getWheelSpeeds();
-        //double leftVolts = feedForward.calculate(leftMetersPerSecond);
-        //double rightVolts = feedForward.calculate(rightMetersPerSecond);
-        double leftVolts = feedForward.calculate(leftMetersPerSecond)+leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
-        double rightVolts = feedForward.calculate(rightMetersPerSecond)+rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
+        double leftVolts = 0;
+        double rightVolts = 0;
+        
+        leftVolts += feedForward.calculate(leftMetersPerSecond);
+        rightVolts += feedForward.calculate(rightMetersPerSecond);
+        leftVolts += leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
+        rightVolts += rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
+
         leftVolts = sLimiterLeft.calculate(leftVolts);
         rightVolts = sLimiterRight.calculate(rightVolts);
         tankDriveVolts(
@@ -280,8 +284,8 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putNumber("Linear Feet Per", Units.metersToFeet(kinematics.toChassisSpeeds(getWheelSpeeds()).vxMetersPerSecond));
         SmartDashboard.putNumber("Angular Radians Per", kinematics.toChassisSpeeds(getWheelSpeeds()).omegaRadiansPerSecond);
         NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard"); // field positions for live visualizer
-        liveTable.getEntry("robotX").setDouble(Units.metersToFeet(getOdometry().getPoseMeters().getTranslation().getX()));
-        liveTable.getEntry("robotY").setDouble(Units.metersToFeet(getOdometry().getPoseMeters().getTranslation().getY()));
+        liveTable.getEntry("robotX").setDouble(Units.metersToFeet(getOdometry().getPoseMeters().getTranslation().getX())+5);
+        liveTable.getEntry("robotY").setDouble(Units.metersToFeet(getOdometry().getPoseMeters().getTranslation().getY())+13);
         liveTable.getEntry("robotHeading").setDouble(getOdometry().getPoseMeters().getRotation().getRadians());
 
         //SmartDashboard.putData(leftPIDController);
