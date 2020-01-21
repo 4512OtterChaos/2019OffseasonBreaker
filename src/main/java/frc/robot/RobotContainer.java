@@ -50,7 +50,7 @@ public class RobotContainer {
         led.setLength(ledBuffer.getLength());
 
         for(int i=0;i<ledBuffer.getLength();i++){
-            ledBuffer.setRGB(i, 251, 108, 14);
+            ledBuffer.setHSV(i, 113, 122, 150);
         }
 
         led.setData(ledBuffer);

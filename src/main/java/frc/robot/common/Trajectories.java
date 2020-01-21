@@ -16,9 +16,11 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.trajectory.constraint.TrajectoryConstraint;
@@ -96,5 +98,39 @@ public class Trajectories {
         liveTable.getEntry("pathX").setDouble(Units.metersToFeet(currPose.getTranslation().getX())+5);
         liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY())+13);
         liveTable.getEntry("isFollowingPath").setBoolean(timeSeconds <= trajectory.getTotalTimeSeconds());
+    }
+
+    /**
+     * Lists different poses for paths,  as well as utilities for constructing them.
+     */
+    public static class Paths{
+        public Paths(){
+        }
+
+        public static List<Pose2d> getPoses(Trajectory traj){
+            return traj.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
+        }
+
+        public static Trajectory feetToMeters(Trajectory traj, TrajectoryConfig config){
+            return TrajectoryGenerator.generateTrajectory(feetToMeters(getPoses(traj)), config);
+        }
+        public static List<Pose2d> feetToMeters(List<Pose2d> poses){
+            return poses.stream()
+                .map(pose -> new Pose2d(new Translation2d(
+                    Units.feetToMeters(pose.getTranslation().getX()),
+                    Units.feetToMeters(pose.getTranslation().getY())),
+                    pose.getRotation()))
+                .collect(Collectors.toList());
+        }
+
+        public static List<Pose2d> reversePoses(Trajectory traj){
+            return reversePoses(getPoses(traj));
+        }
+        public static List<Pose2d> reversePoses(List<Pose2d> poses){
+            List<Pose2d> reversedPoses = poses.stream().collect(Collectors.toList());
+            Collections.reverse(reversedPoses);
+            return reversedPoses;
+        }
+        
     }
 }
