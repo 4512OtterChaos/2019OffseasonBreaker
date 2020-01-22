@@ -88,6 +88,57 @@ public class Trajectories {
         // For Pathweaver, do TrajectoryUtil.fromPathweaverJson()
     }
 
+    public static List<Pose2d> getPoses(Trajectory traj){
+        return traj.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
+    }
+
+    public static Trajectory feetToMeters(Trajectory traj, TrajectoryConfig config){
+        return TrajectoryGenerator.generateTrajectory(Paths.feetToMeters(getPoses(traj)), config);
+    }
+
+    public static Trajectory reversePoses(Trajectory traj, TrajectoryConfig config){
+        List<Pose2d> poses = reversePoses(getPoses(traj));
+        return TrajectoryGenerator.generateTrajectory(
+            poses, config);
+    }
+    public static List<Pose2d> reversePoses(List<Pose2d> poses){
+        List<Pose2d> reversedPoses = poses.stream().collect(Collectors.toList());
+        Collections.reverse(reversedPoses);
+        return reversedPoses;
+    }
+
+    /**
+     * Lists pose lists for different paths.
+     * We explicitly hard-code these waypoints because it is easier to modify/tune quickly--
+     * if you would like a visual representation, use FalconDashboard.
+     * <b>! Note ! - Pose values are in feet, but the resulting list is converted to meters.</b>
+     */
+    public static class Paths{
+        // All pose distance measurements are in feet!
+        public static final List<Pose2d> forward = feetToMeters(
+            Arrays.asList(
+              new Pose2d(),
+              new Pose2d(3, 0, new Rotation2d())  
+            )
+        );
+        public static final List<Pose2d> example = feetToMeters(
+            Arrays.asList(
+                new Pose2d(),
+                new Pose2d(3.5, 2.5, new Rotation2d()),
+                new Pose2d(7, 0, new Rotation2d())
+            )
+        );
+        
+        public static List<Pose2d> feetToMeters(List<Pose2d> poses){
+            return poses.stream()
+                .map(pose -> new Pose2d(new Translation2d(
+                    Units.feetToMeters(pose.getTranslation().getX()),
+                    Units.feetToMeters(pose.getTranslation().getY())),
+                    pose.getRotation()))
+                .collect(Collectors.toList());
+        }
+    }
+
     /**
      * Logs an instantaneous point in a trajectory to the live visualizer.
      * @param trajectory Trajectory to track
@@ -98,39 +149,5 @@ public class Trajectories {
         liveTable.getEntry("pathX").setDouble(Units.metersToFeet(currPose.getTranslation().getX())+5);
         liveTable.getEntry("pathY").setDouble(Units.metersToFeet(currPose.getTranslation().getY())+13);
         liveTable.getEntry("isFollowingPath").setBoolean(timeSeconds <= trajectory.getTotalTimeSeconds());
-    }
-
-    /**
-     * Lists different poses for paths,  as well as utilities for constructing them.
-     */
-    public static class Paths{
-        public Paths(){
-        }
-
-        public static List<Pose2d> getPoses(Trajectory traj){
-            return traj.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
-        }
-
-        public static Trajectory feetToMeters(Trajectory traj, TrajectoryConfig config){
-            return TrajectoryGenerator.generateTrajectory(feetToMeters(getPoses(traj)), config);
-        }
-        public static List<Pose2d> feetToMeters(List<Pose2d> poses){
-            return poses.stream()
-                .map(pose -> new Pose2d(new Translation2d(
-                    Units.feetToMeters(pose.getTranslation().getX()),
-                    Units.feetToMeters(pose.getTranslation().getY())),
-                    pose.getRotation()))
-                .collect(Collectors.toList());
-        }
-
-        public static List<Pose2d> reversePoses(Trajectory traj){
-            return reversePoses(getPoses(traj));
-        }
-        public static List<Pose2d> reversePoses(List<Pose2d> poses){
-            List<Pose2d> reversedPoses = poses.stream().collect(Collectors.toList());
-            Collections.reverse(reversedPoses);
-            return reversedPoses;
-        }
-        
     }
 }

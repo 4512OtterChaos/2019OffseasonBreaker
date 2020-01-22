@@ -15,7 +15,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 /**
  * Used for configuring motor settings.
  */
-public class ConfigMotors {
+public class OCConfig {
 
     /**
      * Configures each motor given with drive settings.

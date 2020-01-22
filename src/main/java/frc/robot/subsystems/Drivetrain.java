@@ -32,7 +32,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.common.ConfigMotors;
+import frc.robot.common.OCConfig;
 
 /**
  * Subsystem controlling the drivetrain
@@ -96,7 +96,7 @@ public class Drivetrain extends SubsystemBase {
         resetEncoders();
         resetGyro();
         
-        ConfigMotors.configDriveMotors(leftMotors, rightMotors, true); // set motor configuration
+        OCConfig.configDriveMotors(leftMotors, rightMotors, true); // set motor configuration
 
         odometry = new DifferentialDriveOdometry(getHeading());
     }
@@ -116,14 +116,14 @@ public class Drivetrain extends SubsystemBase {
     }
     
     public void setIdleMode(IdleMode mode){
-        ConfigMotors.setIdleMode(mode, leftMotors);
-        ConfigMotors.setIdleMode(mode, rightMotors);
+        OCConfig.setIdleMode(mode, leftMotors);
+        OCConfig.setIdleMode(mode, rightMotors);
     }
     
     /**
      * As opposed to the more basic set() method, using voltage allows for compensation between battery differences.
      * <p>(This method does not actually perform compensation, just turns volts to percentage, and is not affected by drivespeed.
-     * See {@link ConfigMotors})
+     * See {@link OCConfig})
      * @return double[] outputs (0 left, 1 right)
      */
     public void tankDriveVolts(double leftVolts, double rightVolts){
