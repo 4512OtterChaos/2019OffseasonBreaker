@@ -22,15 +22,13 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.BasicRamseteTest;
 import frc.robot.common.OCController;
-import frc.robot.common.Trajectories;
+import frc.robot.common.Paths;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
 
     private Drivetrain drivetrain;
-    private Trajectories trajectories;
-
-    private Compressor compressor = new Compressor();
+    private Paths paths;
 
     private OCController controller = new OCController(0);
 
@@ -41,7 +39,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         drivetrain = new Drivetrain();
-        trajectories = new Trajectories(drivetrain);
+        paths = new Paths(drivetrain);
 
         drivetrain.shift(Drivetrain.Gear.LOW);
 
@@ -60,18 +58,18 @@ public class RobotContainer {
 
         commandChooser.setDefaultOption("Nothing", new InstantCommand(() -> drivetrain.tankDrive(0,0), drivetrain));
         commandChooser.addOption("Forward", 
-            new BasicRamseteTest(drivetrain, trajectories.forward)
+            new BasicRamseteTest(drivetrain, paths.forward)
         );
         commandChooser.addOption("Forward Cycle", 
-            new BasicRamseteTest(drivetrain, trajectories.forward)
-            .andThen(new BasicRamseteTest(drivetrain, trajectories.backward))
+            new BasicRamseteTest(drivetrain, paths.forward)
+            .andThen(new BasicRamseteTest(drivetrain, paths.backward))
         );
         commandChooser.addOption("Test", 
-            new BasicRamseteTest(drivetrain, trajectories.example)
+            new BasicRamseteTest(drivetrain, paths.example)
         );
         commandChooser.addOption("Test Cycle",
-            new BasicRamseteTest(drivetrain, trajectories.example)
-            .andThen(new BasicRamseteTest(drivetrain, trajectories.exampleBackwards))
+            new BasicRamseteTest(drivetrain, paths.example)
+            .andThen(new BasicRamseteTest(drivetrain, paths.exampleBackwards))
         );
         SmartDashboard.putData("Auto mode", commandChooser);
     }

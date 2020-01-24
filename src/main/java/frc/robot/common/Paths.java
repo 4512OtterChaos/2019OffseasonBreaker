@@ -32,12 +32,12 @@ import static frc.robot.common.Constants.*;
 /**
  * Holds autonomous trajectories and methods.
  */
-public class Trajectories {
+public class Paths {
 
     private static NetworkTable liveTable = NetworkTableInstance.getDefault().getTable("Live_Dashboard");
 
-    //----- Trajectories
-    public final Trajectory forward; // our different paths
+    //----- Paths
+    public final OCPath forward; // our different paths
     public final Trajectory backward;
     public final Trajectory example;
     public final Trajectory exampleBackwards;
@@ -46,13 +46,9 @@ public class Trajectories {
     /**
      * Generates autonomous paths given a drivetrain.
      */
-    public Trajectories(Drivetrain drive){
-        // Configuration, or behavior, of the path following
-        TrajectoryConfig config = new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters)
-            .setKinematics(drive.getKinematics()) // Measure geometry
-            .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
-            .addConstraint(new DifferentialDriveVoltageConstraint(drive.getFeedForward(), drive.getKinematics(), 10)); // Account for voltage sag
-
+    public Paths(Drivetrain drive){
+        forward = forward.generate(Poses.forward, drive);
+        /*
         List<Pose2d> examplePoses = 
             Arrays.asList(
                 new Pose2d(),
@@ -84,27 +80,8 @@ public class Trajectories {
         exampleBackwards = TrajectoryGenerator.generateTrajectory(
             examplePosesReverse,
             config.setReversed(true));
-
+        */
         // For Pathweaver, do TrajectoryUtil.fromPathweaverJson()
-    }
-
-    public static List<Pose2d> getPoses(Trajectory traj){
-        return traj.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
-    }
-
-    public static Trajectory feetToMeters(Trajectory traj, TrajectoryConfig config){
-        return TrajectoryGenerator.generateTrajectory(Paths.feetToMeters(getPoses(traj)), config);
-    }
-
-    public static Trajectory reversePoses(Trajectory traj, TrajectoryConfig config){
-        List<Pose2d> poses = reversePoses(getPoses(traj));
-        return TrajectoryGenerator.generateTrajectory(
-            poses, config);
-    }
-    public static List<Pose2d> reversePoses(List<Pose2d> poses){
-        List<Pose2d> reversedPoses = poses.stream().collect(Collectors.toList());
-        Collections.reverse(reversedPoses);
-        return reversedPoses;
     }
 
     /**
@@ -113,7 +90,7 @@ public class Trajectories {
      * if you would like a visual representation, use FalconDashboard.
      * <b>! Note ! - Pose values are in feet, but the resulting list is converted to meters.</b>
      */
-    public static class Paths{
+    public static class Poses{
         // All pose distance measurements are in feet!
         public static final List<Pose2d> forward = feetToMeters(
             Arrays.asList(
@@ -129,7 +106,7 @@ public class Trajectories {
             )
         );
         
-        public static List<Pose2d> feetToMeters(List<Pose2d> poses){
+        private static List<Pose2d> feetToMeters(List<Pose2d> poses){
             return poses.stream()
                 .map(pose -> new Pose2d(new Translation2d(
                     Units.feetToMeters(pose.getTranslation().getX()),

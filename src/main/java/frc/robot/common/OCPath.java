@@ -21,53 +21,34 @@ import edu.wpi.first.wpilibj.trajectory.constraint.CentripetalAccelerationConstr
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 
 /**
- * Add your docs here.
+ * C
  */
-public class OCPath {
-    public Trajectory trajectory;
-    private TrajectoryConfig config;
-
-    private static final TrajectoryConfig defaultConfig = new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters)
-        .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)); // Take corners slow
+public class OCPath extends Trajectory{
+    private final TrajectoryConfig config;
 
     public OCPath(List<Pose2d> poses, Drivetrain drive){
-        
+        this(poses, getDefaultConfig(drive));
     }
     public OCPath(List<Pose2d> poses, TrajectoryConfig config){
-        this(
-            TrajectoryGenerator.generateTrajectory(
-                poses, config),
-            config
-        );
-    }
-    
-    public OCPath(Trajectory traj, TrajectoryConfig config){
-        trajectory = traj;
+        super(TrajectoryGenerator.generateTrajectory(poses, config).getStates());
         this.config = config;
     }
 
-    private TrajectoryConfig configDefault(Drivetrain drive){
-        defaultConfig.setKinematics(drive.getKinematics()) // Measure geometry
+    private static TrajectoryConfig getDefaultConfig(Drivetrain drive){
+        return new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters)
+            .setKinematics(drive.getKinematics())
+            .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
             .addConstraint(new DifferentialDriveVoltageConstraint(drive.getFeedForward(), drive.getKinematics(), 10)); // Account for voltage sag
-        return defaultConfig;
     }
   
     public List<Pose2d> getPoses(){
-        return trajectory.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
+        return this.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
     }
 
-    public Trajectory reversePoses(Trajectory traj, TrajectoryConfig config){
-        List<Pose2d> poses = reversePoses(getPoses());
-        return TrajectoryGenerator.generateTrajectory(
-            poses, config);
-    }
-    public List<Pose2d> reversePoses(List<Pose2d> poses){
-        List<Pose2d> reversedPoses = poses.stream().collect(Collectors.toList());
+    public OCPath getReversed(){
+        List<Pose2d> reversedPoses = getPoses();
         Collections.reverse(reversedPoses);
-        return reversedPoses;
+        return new OCPath(poses, config.)
     }
-
-    //public Trajectory getReversed(){
-    //}
 
 }
