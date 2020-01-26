@@ -38,16 +38,18 @@ public class Paths {
 
     //----- Paths
     public final OCPath forward; // our different paths
-    public final Trajectory backward;
-    public final Trajectory example;
-    public final Trajectory exampleBackwards;
+    //public final OCPath backward;
+    public final OCPath example;
+    //public final OCPath exampleBackwards;
     //-----
 
     /**
      * Generates autonomous paths given a drivetrain.
      */
     public Paths(Drivetrain drive){
-        forward = forward.generate(Poses.forward, drive);
+        forward = new OCPath(Poses.forward, drive);
+        example = new OCPath(Poses.example, drive);
+
         /*
         List<Pose2d> examplePoses = 
             Arrays.asList(
@@ -93,21 +95,20 @@ public class Paths {
     public static class Poses{
         // All pose distance measurements are in feet!
         public static final List<Pose2d> forward = feetToMeters(
-            Arrays.asList(
-              new Pose2d(),
-              new Pose2d(3, 0, new Rotation2d())  
-            )
+            new Pose2d(),
+            new Pose2d(3, 0, new Rotation2d())  
         );
         public static final List<Pose2d> example = feetToMeters(
-            Arrays.asList(
-                new Pose2d(),
-                new Pose2d(3.5, 2.5, new Rotation2d()),
-                new Pose2d(7, 0, new Rotation2d())
-            )
+            new Pose2d(),
+            new Pose2d(3.5, 2.5, new Rotation2d()),
+            new Pose2d(7, 0, new Rotation2d())
         );
         
-        private static List<Pose2d> feetToMeters(List<Pose2d> poses){
-            return poses.stream()
+        /**
+         * Takes pose waypoints in feet, returning the list as poses in meters.
+         */
+        private static List<Pose2d> feetToMeters(Pose2d... poses){
+            return Arrays.asList(poses).stream()
                 .map(pose -> new Pose2d(new Translation2d(
                     Units.feetToMeters(pose.getTranslation().getX()),
                     Units.feetToMeters(pose.getTranslation().getY())),

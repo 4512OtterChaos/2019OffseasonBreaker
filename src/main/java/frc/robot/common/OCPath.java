@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
  * C
  */
 public class OCPath extends Trajectory{
-    private final TrajectoryConfig config;
+    private TrajectoryConfig config;
 
     public OCPath(List<Pose2d> poses, Drivetrain drive){
         this(poses, getDefaultConfig(drive));
@@ -48,7 +48,10 @@ public class OCPath extends Trajectory{
     public OCPath getReversed(){
         List<Pose2d> reversedPoses = getPoses();
         Collections.reverse(reversedPoses);
-        return new OCPath(poses, config.)
+
+        OCPath reversedPath = new OCPath(reversedPoses, config.setReversed(true));
+        config.setReversed(false);
+        return reversedPath;
     }
 
 }

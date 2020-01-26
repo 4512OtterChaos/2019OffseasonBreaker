@@ -62,14 +62,14 @@ public class RobotContainer {
         );
         commandChooser.addOption("Forward Cycle", 
             new BasicRamseteTest(drivetrain, paths.forward)
-            .andThen(new BasicRamseteTest(drivetrain, paths.backward))
+            .andThen(new BasicRamseteTest(drivetrain, paths.forward.getReversed()))
         );
         commandChooser.addOption("Test", 
             new BasicRamseteTest(drivetrain, paths.example)
         );
         commandChooser.addOption("Test Cycle",
             new BasicRamseteTest(drivetrain, paths.example)
-            .andThen(new BasicRamseteTest(drivetrain, paths.exampleBackwards))
+            .andThen(new BasicRamseteTest(drivetrain, paths.example.getReversed()))
         );
         SmartDashboard.putData("Auto mode", commandChooser);
     }

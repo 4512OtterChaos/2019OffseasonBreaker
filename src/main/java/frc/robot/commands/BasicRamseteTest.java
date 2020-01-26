@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.common.Trajectories;
+import frc.robot.common.Paths;
 
 /**
  * A basic example of using ramsete controller to follow a short path
@@ -56,14 +56,14 @@ public class BasicRamseteTest extends RamseteCommand{
     public void execute(){
         super.execute();
 
-        Trajectories.logTrajectory(trajectory, timer.get());
+        Paths.logTrajectory(trajectory, timer.get());
     }
 
     @Override
     public void end(boolean interrupted){
         super.end(interrupted);
 
-        Trajectories.logTrajectory(trajectory, trajectory.getTotalTimeSeconds()+1);
+        Paths.logTrajectory(trajectory, trajectory.getTotalTimeSeconds()+1);
         timer.stop();
         drivetrain.tankDrive(0, 0);
     }
