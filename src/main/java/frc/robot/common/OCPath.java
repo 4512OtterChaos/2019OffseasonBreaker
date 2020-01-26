@@ -42,12 +42,23 @@ public class OCPath extends Trajectory{
     }
   
     public List<Pose2d> getPoses(){
-        return this.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
+        List<Pose2d> poses = this.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
+        System.out.println("--Normal--");
+        for(Pose2d pose:poses){
+            System.out.println(pose.toString());
+        }
+        System.out.println("----------");
+        return poses;
     }
 
     public OCPath getReversed(){
         List<Pose2d> reversedPoses = getPoses();
         Collections.reverse(reversedPoses);
+        System.out.println("-Reversed-");
+        for(Pose2d pose:reversedPoses){
+            System.out.println(pose.toString());
+        }
+        System.out.println("----------");
 
         OCPath reversedPath = new OCPath(reversedPoses, config.setReversed(true));
         config.setReversed(false);

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
@@ -64,10 +65,10 @@ public class RobotContainer {
             new BasicRamseteTest(drivetrain, paths.forward)
             .andThen(new BasicRamseteTest(drivetrain, paths.forward.getReversed()))
         );
-        commandChooser.addOption("Test", 
+        commandChooser.addOption("Example", 
             new BasicRamseteTest(drivetrain, paths.example)
         );
-        commandChooser.addOption("Test Cycle",
+        commandChooser.addOption("Example Cycle",
             new BasicRamseteTest(drivetrain, paths.example)
             .andThen(new BasicRamseteTest(drivetrain, paths.example.getReversed()))
         );
