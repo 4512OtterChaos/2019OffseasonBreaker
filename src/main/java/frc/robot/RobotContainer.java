@@ -58,16 +58,20 @@ public class RobotContainer {
         configureButtonBindings(); // Attach functionality to controller
 
         commandChooser.setDefaultOption("Nothing", new InstantCommand(() -> drivetrain.tankDrive(0,0), drivetrain));
+        /*
         commandChooser.addOption("Forward", 
             new BasicRamseteTest(drivetrain, paths.forward)
         );
         commandChooser.addOption("Forward Cycle", 
             new BasicRamseteTest(drivetrain, paths.forward)
+
             .andThen(new BasicRamseteTest(drivetrain, paths.forward.getReversed()))
         );
+        */
+        /*
         commandChooser.addOption("Example", 
             new BasicRamseteTest(drivetrain, paths.example)
-        );
+        );*/
         commandChooser.addOption("Example Cycle",
             new BasicRamseteTest(drivetrain, paths.example)
             .andThen(new BasicRamseteTest(drivetrain, paths.example.getReversed()))

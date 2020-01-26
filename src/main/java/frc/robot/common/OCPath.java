@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import static frc.robot.common.Constants.*;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
@@ -25,9 +26,11 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
  */
 public class OCPath extends Trajectory{
     private TrajectoryConfig config;
+    private Drivetrain drive;
 
     public OCPath(List<Pose2d> poses, Drivetrain drive){
         this(poses, getDefaultConfig(drive));
+        this.drive = drive;
     }
     public OCPath(List<Pose2d> poses, TrajectoryConfig config){
         super(TrajectoryGenerator.generateTrajectory(poses, config).getStates());
@@ -54,14 +57,14 @@ public class OCPath extends Trajectory{
     public OCPath getReversed(){
         List<Pose2d> reversedPoses = getPoses();
         Collections.reverse(reversedPoses);
+        
         System.out.println("-Reversed-");
         for(Pose2d pose:reversedPoses){
             System.out.println(pose.toString());
         }
         System.out.println("----------");
 
-        OCPath reversedPath = new OCPath(reversedPoses, config.setReversed(true));
-        config.setReversed(false);
+        OCPath reversedPath = new OCPath(reversedPoses, getDefaultConfig(drive).setReversed(true));
         return reversedPath;
     }
 

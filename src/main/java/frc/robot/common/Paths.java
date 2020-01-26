@@ -8,7 +8,6 @@
 package frc.robot.common;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,17 +17,8 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.trajectory.Trajectory.State;
-import edu.wpi.first.wpilibj.trajectory.constraint.CentripetalAccelerationConstraint;
-import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
-import edu.wpi.first.wpilibj.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.subsystems.Drivetrain;
-
-import static frc.robot.common.Constants.*;
-
 /**
  * Holds autonomous trajectories and methods.
  */
@@ -100,8 +90,8 @@ public class Paths {
         );
         public static final List<Pose2d> example = feetToMeters(
             new Pose2d(),
-            new Pose2d(3.5, 2.5, new Rotation2d()),
-            new Pose2d(7, 0, new Rotation2d())
+            new Pose2d(4, 2, new Rotation2d()),
+            new Pose2d(8, 0, new Rotation2d())
         );
         
         /**
