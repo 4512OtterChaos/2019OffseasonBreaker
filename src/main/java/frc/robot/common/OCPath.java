@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.trajectory.constraint.CentripetalAccelerationConstr
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 
 /**
- * C
+ * 
  */
 public class OCPath extends Trajectory{
     private TrajectoryConfig config;

@@ -2,6 +2,8 @@ package frc.robot;
 
 import static frc.robot.common.Constants.*;
 
+import java.util.Arrays;
+
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -23,7 +25,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.BasicRamseteTest;
 import frc.robot.common.OCController;
+import frc.robot.common.OCPath;
 import frc.robot.common.Paths;
+import frc.robot.common.Paths.Poses;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
@@ -72,10 +76,20 @@ public class RobotContainer {
         commandChooser.addOption("Example", 
             new BasicRamseteTest(drivetrain, paths.example)
         );*/
+        commandChooser.addOption("Normal", new BasicRamseteTest(drivetrain, paths.example));
+        commandChooser.addOption("Test", 
+            new BasicRamseteTest(drivetrain, 
+                new OCPath(Poses.feetToMeters(
+                    new Pose2d(),
+                    new Pose2d(3, 0, new Rotation2d())
+                ), drivetrain))
+        );
+        /*
         commandChooser.addOption("Example Cycle",
             new BasicRamseteTest(drivetrain, paths.example)
             .andThen(new BasicRamseteTest(drivetrain, paths.example.getReversed()))
         );
+        */
         SmartDashboard.putData("Auto mode", commandChooser);
     }
 

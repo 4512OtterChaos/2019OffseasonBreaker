@@ -97,7 +97,7 @@ public class Paths {
         /**
          * Takes pose waypoints in feet, returning the list as poses in meters.
          */
-        private static List<Pose2d> feetToMeters(Pose2d... poses){
+        public static List<Pose2d> feetToMeters(Pose2d... poses){
             return Arrays.asList(poses).stream()
                 .map(pose -> new Pose2d(new Translation2d(
                     Units.feetToMeters(pose.getTranslation().getX()),
