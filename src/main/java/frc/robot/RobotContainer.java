@@ -2,7 +2,10 @@ package frc.robot;
 
 import static frc.robot.common.Constants.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -16,8 +19,10 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -53,7 +58,7 @@ public class RobotContainer {
         led.setLength(ledBuffer.getLength());
 
         for(int i=0;i<ledBuffer.getLength();i++){
-            ledBuffer.setHSV(i, 113, 122, 150);
+            ledBuffer.setHSV(i, 113, 122, 100);
         }
 
         led.setData(ledBuffer);
@@ -72,17 +77,18 @@ public class RobotContainer {
             .andThen(new BasicRamseteTest(drivetrain, paths.forward.getReversed()))
         );
         */
-        /*
+        
         commandChooser.addOption("Example", 
             new BasicRamseteTest(drivetrain, paths.example)
-        );*/
-        commandChooser.addOption("Normal", new BasicRamseteTest(drivetrain, paths.example));
+        );
+        
         commandChooser.addOption("Test", 
             new BasicRamseteTest(drivetrain, 
-                new OCPath(Poses.feetToMeters(
-                    new Pose2d(),
-                    new Pose2d(3, 0, new Rotation2d())
-                ), drivetrain))
+                TrajectoryGenerator.generateTrajectory(Poses.example,
+                    OCPath.getDefaultConfig(drivetrain))
+                .andThen(new BasicRamseteTest(drivetrain, 
+                    TrajectoryGenerator.generateTrajectory(OCPath.getReversed(Poses.example),
+                        OCPath.getReversed(OCPath.getDefaultConfig(drivetrain))))))
         );
         /*
         commandChooser.addOption("Example Cycle",

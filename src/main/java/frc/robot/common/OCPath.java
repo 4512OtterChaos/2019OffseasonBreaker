@@ -7,6 +7,7 @@
 
 package frc.robot.common;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,18 +27,16 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
  */
 public class OCPath extends Trajectory{
     private TrajectoryConfig config;
-    private Drivetrain drive;
 
     public OCPath(List<Pose2d> poses, Drivetrain drive){
         this(poses, getDefaultConfig(drive));
-        this.drive = drive;
     }
     public OCPath(List<Pose2d> poses, TrajectoryConfig config){
         super(TrajectoryGenerator.generateTrajectory(poses, config).getStates());
         this.config = config;
     }
 
-    private static TrajectoryConfig getDefaultConfig(Drivetrain drive){
+    public static TrajectoryConfig getDefaultConfig(Drivetrain drive){
         return new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters)
             .setKinematics(drive.getKinematics())
             .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
@@ -46,7 +45,7 @@ public class OCPath extends Trajectory{
   
     public List<Pose2d> getPoses(){
         List<Pose2d> poses = this.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
-        System.out.println("--Normal--");
+        System.out.println("--Poses---");
         for(Pose2d pose:poses){
             System.out.println(pose.toString());
         }
@@ -55,17 +54,20 @@ public class OCPath extends Trajectory{
     }
 
     public OCPath getReversed(){
-        List<Pose2d> reversedPoses = getPoses();
-        Collections.reverse(reversedPoses);
-        
-        System.out.println("-Reversed-");
-        for(Pose2d pose:reversedPoses){
-            System.out.println(pose.toString());
+        return new OCPath(getReversed(getPoses()), 
+            getReversed(config));
+    }
+    public static List<Pose2d> getReversed(List<Pose2d> poses){
+        List<Pose2d> reversedPoses = new ArrayList<Pose2d>(poses);
+        for(int i=poses.size();i>0;i--){
+            reversedPoses.set(poses.size()-i, poses.get(i-1));
         }
-        System.out.println("----------");
-
-        OCPath reversedPath = new OCPath(reversedPoses, getDefaultConfig(drive).setReversed(true));
-        return reversedPath;
+        return reversedPoses;
+    }
+    public static TrajectoryConfig getReversed(TrajectoryConfig config){
+        return new TrajectoryConfig(config.getMaxVelocity(), config.getMaxAcceleration())
+            .addConstraints(config.getConstraints())
+            .setReversed(true);
     }
 
 }

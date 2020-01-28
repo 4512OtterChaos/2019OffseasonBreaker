@@ -39,12 +39,12 @@ public class OCController extends XboxController{
      * @return -1 to 1
      */
     public static double applyDeadband(double value, double dead){
+        if(Math.abs(value) < dead) return 0;
         double scale = 1.0 / (1 - dead);
         double sign = Math.copySign(1.0, value);
         value = Math.abs(value);
         double fixedValue = sign*(scale*((value-dead)*value));
-        if(value < dead) return 0;
-        else return MathUtil.clamp(fixedValue, -1, 1);
+        return MathUtil.clamp(fixedValue, -1, 1);
     }
 
     public double getY(Hand hand){
