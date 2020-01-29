@@ -82,8 +82,8 @@ public class RobotContainer {
         commandChooser.addOption("Example", 
             new BasicRamseteTest(drivetrain, paths.example)
         );
-        List<Pose2d> reversedPoses = OCPath.getReversed(Poses.example);
-        TrajectoryConfig reversedConfig = OCPath.getReversed(OCPath.getDefaultConfig(drivetrain));
+        List<Pose2d> reversedPoses = OCPath.getReversedPoses(Poses.example);
+        TrajectoryConfig reversedConfig = OCPath.getReversedConfig(OCPath.getDefaultConfig(drivetrain));
         System.out.println("--Poses---");
         for(Pose2d pose:reversedPoses){
             System.out.println(Poses.metersToFeet(pose).toString());
@@ -99,8 +99,7 @@ public class RobotContainer {
                     TrajectoryGenerator.generateTrajectory(reversedPoses,
                         reversedConfig)))
         );
-        OCPath test = new OCPath(OCPath.getReversed(paths.example.getPoses()), 
-            OCPath.getReversed(OCPath.getDefaultConfig(drivetrain)));
+        OCPath test = paths.example.getReversed();
         /*
         commandChooser.addOption("Example Cycle",
             new BasicRamseteTest(drivetrain, paths.example)

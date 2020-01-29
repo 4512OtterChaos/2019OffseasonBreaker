@@ -31,16 +31,16 @@ public class OCPath extends Trajectory{
     private TrajectoryConfig config;
 
     public OCPath(List<Pose2d> poses, Drivetrain drive){
-        this(poses, getDefaultConfig(drive));
+        this(TrajectoryGenerator.generateTrajectory(poses, getDefaultConfig(drive)).getStates(), getDefaultConfig(drive));
     }
-    public <T>OCPath(List<T> items, TrajectoryConfig config){
-        super(TrajectoryGenerator.generateTrajectory(poses, config).getStates());
-        System.out.println("--Poses---");
-        for(Pose2d pose:poses){
-            System.out.println(Poses.metersToFeet(pose).toString());
+    public OCPath(List<State> states, TrajectoryConfig config){
+        super(states);
+        System.out.println("--States---");
+        for(State state:states){
+            System.out.println(state.toString());
         }
         System.out.println("----------");
-        System.out.println("Config reversed: "+(config.isReversed()?"true":"false"));
+        System.out.println("Config reversed: "+(config.isReversed()));
         this.config = config;
     }
     /*
@@ -55,19 +55,19 @@ public class OCPath extends Trajectory{
             .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
             .addConstraint(new DifferentialDriveVoltageConstraint(drive.getFeedForward(), drive.getKinematics(), 10)); // Account for voltage sag
     }
-  
+    /*
     public List<Pose2d> getPoses(){
         List<Pose2d> poses = this.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
         return poses;
-    }
+    }*/
     public TrajectoryConfig getConfig(){
         return new TrajectoryConfig(config.getMaxVelocity(), config.getMaxAcceleration())
             .addConstraints(config.getConstraints());
     }
 
     public OCPath getReversed(){
-        return new OCPath(getReversed(getPoses()), 
-            getReversed(getConfig()));
+        return new OCPath(getReversedStates(getStates()), 
+            getReversedConfig(getConfig()));
     }
     public static List<Pose2d> getReversedPoses(List<Pose2d> poses){
         List<Pose2d> reversedPoses = new ArrayList<Pose2d>(poses);
