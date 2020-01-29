@@ -37,7 +37,9 @@ public class Paths {
      * Generates autonomous paths given a drivetrain.
      */
     public Paths(Drivetrain drive){
+        System.out.println("-Forward-");
         forward = new OCPath(Poses.forward, drive);
+        System.out.println("-Example-");
         example = new OCPath(Poses.example, drive);
 
         /*
@@ -102,6 +104,18 @@ public class Paths {
                 .map(pose -> new Pose2d(new Translation2d(
                     Units.feetToMeters(pose.getTranslation().getX()),
                     Units.feetToMeters(pose.getTranslation().getY())),
+                    pose.getRotation()))
+                .collect(Collectors.toList());
+        }
+        /**
+         * Takes pose waypoints in meters, returning the list as poses in feet
+         * (Should only be used for telemetry).
+         */
+        public static List<Pose2d> metersToFeet(Pose2d... poses){
+            return Arrays.asList(poses).stream()
+                .map(pose -> new Pose2d(new Translation2d(
+                    Units.metersToFeet(pose.getTranslation().getX()),
+                    Units.metersToFeet(pose.getTranslation().getY())),
                     pose.getRotation()))
                 .collect(Collectors.toList());
         }

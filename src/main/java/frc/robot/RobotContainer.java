@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -81,15 +82,25 @@ public class RobotContainer {
         commandChooser.addOption("Example", 
             new BasicRamseteTest(drivetrain, paths.example)
         );
-        
+        List<Pose2d> reversedPoses = OCPath.getReversed(Poses.example);
+        TrajectoryConfig reversedConfig = OCPath.getReversed(OCPath.getDefaultConfig(drivetrain));
+        System.out.println("--Poses---");
+        for(Pose2d pose:reversedPoses){
+            System.out.println(Poses.metersToFeet(pose).toString());
+        }
+        System.out.println("----------");
+        System.out.println("Config reversed: "+(reversedConfig.isReversed()?"true":"false"));
+
         commandChooser.addOption("Test", 
             new BasicRamseteTest(drivetrain, 
                 TrajectoryGenerator.generateTrajectory(Poses.example,
-                    OCPath.getDefaultConfig(drivetrain))
+                    OCPath.getDefaultConfig(drivetrain)))
                 .andThen(new BasicRamseteTest(drivetrain, 
-                    TrajectoryGenerator.generateTrajectory(OCPath.getReversed(Poses.example),
-                        OCPath.getReversed(OCPath.getDefaultConfig(drivetrain))))))
+                    TrajectoryGenerator.generateTrajectory(reversedPoses,
+                        reversedConfig)))
         );
+        OCPath test = new OCPath(OCPath.getReversed(paths.example.getPoses()), 
+            OCPath.getReversed(OCPath.getDefaultConfig(drivetrain)));
         /*
         commandChooser.addOption("Example Cycle",
             new BasicRamseteTest(drivetrain, paths.example)

@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static frc.robot.common.Constants.*;
+
+import frc.robot.common.Paths.Poses;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -31,10 +33,21 @@ public class OCPath extends Trajectory{
     public OCPath(List<Pose2d> poses, Drivetrain drive){
         this(poses, getDefaultConfig(drive));
     }
-    public OCPath(List<Pose2d> poses, TrajectoryConfig config){
+    public <T>OCPath(List<T> items, TrajectoryConfig config){
         super(TrajectoryGenerator.generateTrajectory(poses, config).getStates());
+        System.out.println("--Poses---");
+        for(Pose2d pose:poses){
+            System.out.println(Poses.metersToFeet(pose).toString());
+        }
+        System.out.println("----------");
+        System.out.println("Config reversed: "+(config.isReversed()?"true":"false"));
         this.config = config;
     }
+    /*
+    public OCPath(List<State> states, TrajectoryConfig config){
+        super(states);
+    }
+    */
 
     public static TrajectoryConfig getDefaultConfig(Drivetrain drive){
         return new TrajectoryConfig(kMaxMetersLowGear, kMaxAccelerationMeters)
@@ -45,26 +58,28 @@ public class OCPath extends Trajectory{
   
     public List<Pose2d> getPoses(){
         List<Pose2d> poses = this.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
-        System.out.println("--Poses---");
-        for(Pose2d pose:poses){
-            System.out.println(pose.toString());
-        }
-        System.out.println("----------");
         return poses;
+    }
+    public TrajectoryConfig getConfig(){
+        return new TrajectoryConfig(config.getMaxVelocity(), config.getMaxAcceleration())
+            .addConstraints(config.getConstraints());
     }
 
     public OCPath getReversed(){
         return new OCPath(getReversed(getPoses()), 
-            getReversed(config));
+            getReversed(getConfig()));
     }
-    public static List<Pose2d> getReversed(List<Pose2d> poses){
+    public static List<Pose2d> getReversedPoses(List<Pose2d> poses){
         List<Pose2d> reversedPoses = new ArrayList<Pose2d>(poses);
-        for(int i=poses.size();i>0;i--){
-            reversedPoses.set(poses.size()-i, poses.get(i-1));
-        }
+        Collections.reverse(reversedPoses);
         return reversedPoses;
     }
-    public static TrajectoryConfig getReversed(TrajectoryConfig config){
+    public static List<State> getReversedStates(List<State> states){
+        List<State> reversedStates = new ArrayList<State>(states);
+        Collections.reverse(reversedStates);
+        return reversedStates;
+    }
+    public static TrajectoryConfig getReversedConfig(TrajectoryConfig config){
         return new TrajectoryConfig(config.getMaxVelocity(), config.getMaxAcceleration())
             .addConstraints(config.getConstraints())
             .setReversed(true);
