@@ -2,18 +2,11 @@ package frc.robot;
 
 import static frc.robot.common.Constants.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
@@ -21,9 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
-import edu.wpi.first.wpilibj.util.Units;
+import edu.wpi.first.wpilibj.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -68,7 +59,6 @@ public class RobotContainer {
         configureButtonBindings(); // Attach functionality to controller
 
         commandChooser.setDefaultOption("Nothing", new InstantCommand(() -> drivetrain.tankDrive(0,0), drivetrain));
-        /*
         commandChooser.addOption("Forward", 
             new BasicRamseteTest(drivetrain, paths.forward)
         );
@@ -77,35 +67,45 @@ public class RobotContainer {
 
             .andThen(new BasicRamseteTest(drivetrain, paths.forward.getReversed()))
         );
-        */
         
         commandChooser.addOption("Example", 
             new BasicRamseteTest(drivetrain, paths.example)
         );
-        List<Pose2d> reversedPoses = OCPath.getReversedPoses(Poses.example);
-        TrajectoryConfig reversedConfig = OCPath.getReversedConfig(OCPath.getDefaultConfig(drivetrain));
-        System.out.println("--Poses---");
-        for(Pose2d pose:reversedPoses){
-            System.out.println(Poses.metersToFeet(pose).toString());
-        }
-        System.out.println("----------");
-        System.out.println("Config reversed: "+(reversedConfig.isReversed()?"true":"false"));
-
-        commandChooser.addOption("Test", 
-            new BasicRamseteTest(drivetrain, 
-                TrajectoryGenerator.generateTrajectory(Poses.example,
-                    OCPath.getDefaultConfig(drivetrain)))
-                .andThen(new BasicRamseteTest(drivetrain, 
-                    TrajectoryGenerator.generateTrajectory(reversedPoses,
-                        reversedConfig)))
-        );
-        OCPath test = paths.example.getReversed();
-        /*
         commandChooser.addOption("Example Cycle",
             new BasicRamseteTest(drivetrain, paths.example)
             .andThen(new BasicRamseteTest(drivetrain, paths.example.getReversed()))
         );
-        */
+        
+        TrajectoryConfig testConfig = OCPath.getDefaultConfig(drivetrain);
+        System.out.println("Normal Forward");
+        for(State state:TrajectoryGenerator.generateTrajectory(Poses.example, testConfig).getStates()){
+            System.out.println(state.toString());
+        }
+        System.out.println("----------");
+        System.out.println("Config reversed: "+testConfig.isReversed());
+
+        System.out.println("Normal Backward");
+        for(State state:TrajectoryGenerator.generateTrajectory(OCPath.getReversedPoses(Poses.example), 
+            testConfig.setReversed(true)).getStates()){
+                System.out.println(state.toString());
+        }
+        System.out.println("----------");
+        System.out.println("Config reversed: "+testConfig.isReversed());
+
+        System.out.println("OCPath Forward");
+        for(State state:paths.example.getStates()){
+            System.out.println(state.toString());
+        }
+        System.out.println("----------");
+        System.out.println("Config reversed: "+paths.example.getConfig().isReversed());
+
+        System.out.println("OCPath Backward");
+        for(State state:paths.example.getReversed().getStates()){
+            System.out.println(state.toString());
+        }
+        System.out.println("----------");
+        System.out.println("Config reversed: "+paths.example.getReversed().getConfig().isReversed());
+
         SmartDashboard.putData("Auto mode", commandChooser);
     }
 
