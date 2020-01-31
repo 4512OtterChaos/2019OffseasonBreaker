@@ -35,14 +35,14 @@ public class OCPath extends Trajectory{
     }
     public OCPath(List<State> states, TrajectoryConfig config){
         super(states);
-        /*
+        
         System.out.println("--States---");
         for(State state:states){
             System.out.println(state.toString());
         }
         System.out.println("----------");
         System.out.println("Config reversed: "+(config.isReversed()));
-        */
+        
         this.config = config;
     }
     /*
@@ -62,6 +62,9 @@ public class OCPath extends Trajectory{
         List<Pose2d> poses = this.getStates().stream().map(state -> state.poseMeters).collect(Collectors.toList());
         return poses;
     }*/
+    public List<State> getStates(){
+        return new ArrayList<State>(super.getStates());
+    }
     public TrajectoryConfig getConfig(){
         return new TrajectoryConfig(config.getMaxVelocity(), config.getMaxAcceleration())
             .addConstraints(config.getConstraints())
@@ -69,6 +72,7 @@ public class OCPath extends Trajectory{
     }
 
     public OCPath getReversed(){
+        System.out.println("! Got Reversed !");
         return new OCPath(getReversedStates(getStates()), 
             getReversedConfig(getConfig()));
     }
@@ -78,13 +82,18 @@ public class OCPath extends Trajectory{
         return reversedPoses;
     }
     public static List<State> getReversedStates(List<State> states){
-        List<State> reversedStates = states.stream().collect(Collectors.toList());
+        System.out.println("! Got Reversed States !");
+        List<State> reversedStates = new ArrayList<State>(states);
         Collections.reverse(reversedStates);
-        List<State> reference = reversedStates.stream().collect(Collectors.toList());
         
-        for(int i=reversedStates.size();i>0;i--){
-            //reversedStates.get(reversedStates.size()-i).timeSeconds = reference.get(i-1).timeSeconds;
-            //reversedStates.get(reversedStates.size()-i).velocityMetersPerSecond *= -1;
+        for(int i=0;i<reversedStates.size();i++){
+            State currState =  reversedStates.get(i);
+            State newState = new State(states.get(i).timeSeconds, 
+                currState.velocityMetersPerSecond *-1, 
+                currState.accelerationMetersPerSecondSq, 
+                currState.poseMeters, 
+                currState.curvatureRadPerMeter);
+            reversedStates.set(i, newState);
         }
         return reversedStates;
     }

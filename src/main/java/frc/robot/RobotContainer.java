@@ -59,6 +59,7 @@ public class RobotContainer {
         configureButtonBindings(); // Attach functionality to controller
 
         commandChooser.setDefaultOption("Nothing", new InstantCommand(() -> drivetrain.tankDrive(0,0), drivetrain));
+        /*
         commandChooser.addOption("Forward", 
             new BasicRamseteTest(drivetrain, paths.forward)
         );
@@ -67,6 +68,7 @@ public class RobotContainer {
 
             .andThen(new BasicRamseteTest(drivetrain, paths.forward.getReversed()))
         );
+        */
         
         commandChooser.addOption("Example", 
             new BasicRamseteTest(drivetrain, paths.example)
@@ -92,19 +94,24 @@ public class RobotContainer {
         System.out.println("----------");
         System.out.println("Config reversed: "+testConfig.isReversed());
 
+        /*
         System.out.println("OCPath Forward");
         for(State state:paths.example.getStates()){
             System.out.println(state.toString());
         }
         System.out.println("----------");
         System.out.println("Config reversed: "+paths.example.getConfig().isReversed());
+        */
 
+        //OCPath reverseExample = paths.example.getReversed();
+        /*
         System.out.println("OCPath Backward");
-        for(State state:paths.example.getReversed().getStates()){
+        for(State state:reverseExample.getStates()){
             System.out.println(state.toString());
         }
         System.out.println("----------");
-        System.out.println("Config reversed: "+paths.example.getReversed().getConfig().isReversed());
+        System.out.println("Config reversed: "+reverseExample.getConfig().isReversed());
+        */
 
         SmartDashboard.putData("Auto mode", commandChooser);
     }
