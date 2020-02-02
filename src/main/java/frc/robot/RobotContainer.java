@@ -24,6 +24,7 @@ import frc.robot.commands.BasicRamseteTest;
 import frc.robot.common.OCController;
 import frc.robot.common.OCPath;
 import frc.robot.common.Paths;
+import frc.robot.common.Vision;
 import frc.robot.common.Paths.Poses;
 import frc.robot.subsystems.Drivetrain;
 
@@ -31,6 +32,8 @@ public class RobotContainer {
 
     private Drivetrain drivetrain;
     private Paths paths;
+
+    private Vision vision;
 
     private OCController controller = new OCController(0);
 
@@ -42,6 +45,8 @@ public class RobotContainer {
     public RobotContainer() {
         drivetrain = new Drivetrain();
         paths = new Paths(drivetrain);
+
+        vision = new Vision();
 
         drivetrain.shift(Drivetrain.Gear.LOW);
 
