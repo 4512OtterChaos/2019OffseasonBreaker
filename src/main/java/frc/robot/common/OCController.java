@@ -7,6 +7,7 @@
 
 package frc.robot.common;
 
+import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpiutil.math.MathUtil;
 
@@ -16,6 +17,10 @@ import edu.wpi.first.wpiutil.math.MathUtil;
 public class OCController extends XboxController{
 
     private static final double deadband = 0.12;
+    private static final double rateLimit = 5;
+    
+    private SlewRateLimiter forwardLimiter = new SlewRateLimiter(rateLimit);
+    private SlewRateLimiter turnLimiter = new SlewRateLimiter(rateLimit);
 
     /**
      * Constructs OCController on DS joystick port.
@@ -55,18 +60,18 @@ public class OCController extends XboxController{
     }
 
     /**
-     * Applies deadband math to left Y to give 'forward' power.
+     * Applies deadband math and rate limiting to left Y to give 'forward' power.
      * @return Percentage(-1 to 1)
      */
     public double getForward(){
-        return applyDeadband(getY(Hand.kLeft));
+        return forwardLimiter.calculate(applyDeadband(getY(Hand.kLeft)));
     }
     /**
-     * Applies deadband math to right X to give 'turn' power.
+     * Applies deadband math and rate limiting to right X to give 'turn' power.
      * @return Percentage(-1 to 1)
      */
     public double getTurn(){
-        return applyDeadband(getX(Hand.kRight));
+        return turnLimiter.calculate(applyDeadband(getX(Hand.kRight)));
     }
 
     /**

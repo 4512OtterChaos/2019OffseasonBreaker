@@ -27,7 +27,6 @@ public class Constants {
     public static final int kDriveFreeCurrentLimit = 35;
 
     public static final double kRampRaw = 0.08; // seconds to full output(on the motor)
-    public static final double kRampVolts = 12.0 / (0.2); // volts per second(used for slew rate)
     
     public static final double kStaticFF = 0.183; // volts (Given from the characterization tool)
     public static final double kVelocityFF = 4.29; // meters per second

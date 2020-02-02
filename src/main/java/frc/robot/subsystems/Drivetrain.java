@@ -9,8 +9,6 @@ package frc.robot.subsystems;
 
 import static frc.robot.common.Constants.*;
 
-import java.util.Arrays;
-
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
@@ -20,7 +18,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
@@ -39,7 +36,7 @@ import frc.robot.common.OCConfig;
  */
 public class Drivetrain extends SubsystemBase {
 
-    // Enumerator for gearbox states
+    // Enumerator for shifting gearbox state
     public enum Gear {
 
         LOW(kGearRatioLow), HIGH(kGearRatioHigh);
@@ -84,8 +81,6 @@ public class Drivetrain extends SubsystemBase {
     
     private PIDController leftPIDController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
     private PIDController rightPIDController = new PIDController(kP, kI, kD, kRobotDelta);
-    private SlewRateLimiter sLimiterLeft = new SlewRateLimiter(kRampVolts);
-    private SlewRateLimiter sLimiterRight = new SlewRateLimiter(kRampVolts);
     
     public Drivetrain(){
         super();
@@ -141,13 +136,10 @@ public class Drivetrain extends SubsystemBase {
     /**
      * Sets both sides of the drivetrain to given percentages
      * @param driveSpeed Overloads current drivetrain speed
-     * @return double[] outputs (0 left, 1 right)
      */
     public void tankDrive(double left, double right, double driveSpeed){
         left *= driveSpeed;
         right *= driveSpeed;
-        left = sLimiterLeft.calculate(left*12);
-        right = sLimiterRight.calculate(right*12);
         tankDriveVolts(left, right);
     }
     /**
@@ -166,8 +158,6 @@ public class Drivetrain extends SubsystemBase {
         leftVolts += leftPIDController.calculate(speeds.leftMetersPerSecond, leftMetersPerSecond);
         rightVolts += rightPIDController.calculate(speeds.rightMetersPerSecond, rightMetersPerSecond);
 
-        leftVolts = sLimiterLeft.calculate(leftVolts);
-        rightVolts = sLimiterRight.calculate(rightVolts);
         tankDriveVolts(
             leftVolts,
             rightVolts);
