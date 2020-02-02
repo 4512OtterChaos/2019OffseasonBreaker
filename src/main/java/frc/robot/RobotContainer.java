@@ -12,9 +12,6 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -22,10 +19,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.BasicRamseteTest;
 import frc.robot.common.OCController;
-import frc.robot.common.OCPath;
 import frc.robot.common.Paths;
 import frc.robot.common.Vision;
-import frc.robot.common.Paths.Poses;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
@@ -94,26 +89,11 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings(){
-        RunCommand arcadeDrive = new RunCommand(
-            ()->{
+        drivetrain.setDefaultCommand(new RunCommand(()->{
                 double left = controller.getLeftArcade();
                 double right = controller.getRightArcade();
                 drivetrain.tankDrive(left, right);
-            }, 
-            drivetrain);
-        RunCommand PIDDrive = new RunCommand(
-            ()->{
-                double linear = controller.getForward()*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
-                double angular = (controller.getTurn()*(kMaxRadiansLowGear));
-                ChassisSpeeds chassisSpeeds = new ChassisSpeeds(linear, 0, angular);
-                DifferentialDriveWheelSpeeds wheelSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
-                double leftMetersPerSecond = wheelSpeeds.leftMetersPerSecond;
-                double rightMetersPerSecond = wheelSpeeds.rightMetersPerSecond;
-                drivetrain.setVelocityPID(leftMetersPerSecond, rightMetersPerSecond);
-            },
-            drivetrain);
-
-        drivetrain.setDefaultCommand(arcadeDrive);
+            }, drivetrain));
 
         new JoystickButton(controller, 1)
             .whenPressed(() -> drivetrain.shift(Drivetrain.Gear.LOW));
@@ -121,7 +101,23 @@ public class RobotContainer {
             .whenPressed(() -> drivetrain.shift(Drivetrain.Gear.HIGH));
 
         new Trigger(() -> controller.getTriggerAxis(Hand.kRight) > 0.1)
-            .toggleWhenActive(PIDDrive);
+            .toggleWhenActive(new RunCommand(
+                ()->{
+                    double linear = controller.getForward()*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
+                    double angular = (controller.getTurn()*(kMaxRadiansLowGear));
+                    ChassisSpeeds chassisSpeeds = new ChassisSpeeds(linear, 0, angular);
+                    DifferentialDriveWheelSpeeds wheelSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
+                    double leftMetersPerSecond = wheelSpeeds.leftMetersPerSecond;
+                    double rightMetersPerSecond = wheelSpeeds.rightMetersPerSecond;
+                    drivetrain.setVelocityPID(leftMetersPerSecond, rightMetersPerSecond);
+                },
+                drivetrain));
+
+        new JoystickButton(controller, 5)
+            .whenPressed(()->{
+                if(vision.getState().equals(Vision.State.DRIVE)) vision.setState(Vision.State.BASIC);
+                else vision.setState(Vision.State.DRIVE);
+            });
 
         new JoystickButton(controller, 6)
             .whenPressed(()->drivetrain.setDriveSpeed(1))
