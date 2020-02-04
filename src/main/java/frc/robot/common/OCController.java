@@ -34,8 +34,8 @@ public class OCController extends XboxController{
      * @param value Value to adjust
      * @return -1 to 1
      */
-    public static double applyDeadband(double value){
-        return applyDeadband(value, deadband);
+    public static double scaledDeadband(double value){
+        return scaledDeadband(value, deadband);
     }
     /**
      * Deadbands a value and re-scales it.
@@ -43,7 +43,7 @@ public class OCController extends XboxController{
      * @param dead Deadband threshold
      * @return -1 to 1
      */
-    public static double applyDeadband(double value, double dead){
+    public static double scaledDeadband(double value, double dead){
         if(Math.abs(value) < dead) return 0;
         double scale = 1.0 / (1 - dead);
         double sign = Math.copySign(1.0, value);
@@ -64,14 +64,14 @@ public class OCController extends XboxController{
      * @return Percentage(-1 to 1)
      */
     public double getForward(){
-        return forwardLimiter.calculate(applyDeadband(getY(Hand.kLeft)));
+        return forwardLimiter.calculate(scaledDeadband(getY(Hand.kLeft)));
     }
     /**
      * Applies deadband math and rate limiting to right X to give 'turn' power.
      * @return Percentage(-1 to 1)
      */
     public double getTurn(){
-        return turnLimiter.calculate(applyDeadband(getX(Hand.kRight)));
+        return turnLimiter.calculate(scaledDeadband(getX(Hand.kRight)));
     }
 
     /**

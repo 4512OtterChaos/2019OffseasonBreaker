@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -84,8 +86,10 @@ public class RobotContainer {
         drivetrain.log();
         led.setData(ledBuffer);
 
-        SmartDashboard.putNumber("Left Y", controller.getForward());
-        SmartDashboard.putNumber("Right X", controller.getTurn());
+        //SmartDashboard.putNumber("Left Y", controller.getForward());
+        //SmartDashboard.putNumber("Right X", controller.getTurn());
+        //SmartDashboard.putNumber("Left Arcade", controller.getLeftArcade());
+        //SmartDashboard.putNumber("Right Arcade", controller.getRightArcade());
     }
 
     private void configureButtonBindings(){
@@ -112,6 +116,14 @@ public class RobotContainer {
                     drivetrain.setVelocityPID(leftMetersPerSecond, rightMetersPerSecond);
                 },
                 drivetrain));
+
+        new Trigger(() -> controller.getTriggerAxis(Hand.kLeft) > 0.1)
+                .whileActiveOnce(new PIDCommand(
+                    new PIDController(0.2, 0, 0, kRobotDelta),
+                    vision::getTx,
+                    0,
+                    output -> drivetrain.tankDrive(-output, output, 1)
+                ));
 
         new JoystickButton(controller, 5)
             .whenPressed(()->{
