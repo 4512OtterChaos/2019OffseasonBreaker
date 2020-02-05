@@ -53,10 +53,10 @@ public class OCController extends XboxController{
     }
 
     public double getY(Hand hand){
-        return -super.getY(hand);
+        return -scaledDeadband(super.getY(hand));
     }
     public double getX(Hand hand){
-        return -super.getX(hand);
+        return -scaledDeadband(super.getX(hand));
     }
 
     /**
@@ -64,14 +64,14 @@ public class OCController extends XboxController{
      * @return Percentage(-1 to 1)
      */
     public double getForward(){
-        return forwardLimiter.calculate(scaledDeadband(getY(Hand.kLeft)));
+        return forwardLimiter.calculate(getY(Hand.kLeft));
     }
     /**
      * Applies deadband math and rate limiting to right X to give 'turn' power.
      * @return Percentage(-1 to 1)
      */
     public double getTurn(){
-        return turnLimiter.calculate(scaledDeadband(getX(Hand.kRight)));
+        return turnLimiter.calculate(getX(Hand.kRight));
     }
 
     /**

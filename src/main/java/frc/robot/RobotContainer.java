@@ -23,6 +23,7 @@ import frc.robot.commands.BasicRamseteTest;
 import frc.robot.common.OCController;
 import frc.robot.common.Paths;
 import frc.robot.common.Vision;
+import frc.robot.common.Limelight;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
@@ -30,7 +31,7 @@ public class RobotContainer {
     private Drivetrain drivetrain;
     private Paths paths;
 
-    private Vision vision;
+    private Limelight limelight;
 
     private OCController controller = new OCController(0);
 
@@ -43,7 +44,7 @@ public class RobotContainer {
         drivetrain = new Drivetrain();
         paths = new Paths(drivetrain);
 
-        vision = new Vision();
+        limelight = new Limelight();
 
         drivetrain.shift(Drivetrain.Gear.LOW);
 
@@ -86,10 +87,8 @@ public class RobotContainer {
         drivetrain.log();
         led.setData(ledBuffer);
 
-        //SmartDashboard.putNumber("Left Y", controller.getForward());
-        //SmartDashboard.putNumber("Right X", controller.getTurn());
-        //SmartDashboard.putNumber("Left Arcade", controller.getLeftArcade());
-        //SmartDashboard.putNumber("Right Arcade", controller.getRightArcade());
+        SmartDashboard.putNumber("Left Y", controller.getForward());
+        SmartDashboard.putNumber("Right X", controller.getTurn());
     }
 
     private void configureButtonBindings(){
@@ -119,17 +118,15 @@ public class RobotContainer {
 
         new Trigger(() -> controller.getTriggerAxis(Hand.kLeft) > 0.1)
                 .whileActiveOnce(new PIDCommand(
-                    new PIDController(0.2, 0, 0, kRobotDelta),
-                    vision::getTx,
+                    new PIDController(0.06, 0, 0, kRobotDelta),
+                    limelight::getFilteredTx,
                     0,
-                    output -> drivetrain.tankDrive(-output, output, 1)
-                ));
-
-        new JoystickButton(controller, 5)
-            .whenPressed(()->{
-                if(vision.getState().equals(Vision.State.DRIVE)) vision.setState(Vision.State.BASIC);
-                else vision.setState(Vision.State.DRIVE);
-            });
+                    output -> {
+                        if(limelight.getHasTarget()) drivetrain.setVelocityPID(-output, output);
+                    },
+                    drivetrain
+                )).whenActive(()->limelight.setState(Vision.State.BASIC))
+                .whenInactive(()->limelight.setState(Vision.State.DRIVE));
 
         new JoystickButton(controller, 6)
             .whenPressed(()->drivetrain.setDriveSpeed(1))

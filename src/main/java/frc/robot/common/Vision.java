@@ -8,12 +8,12 @@
 package frc.robot.common;
 
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 
 /**
- * Class for interfacing to robot vision, exposing network table values and calculations.
+ * Common interface that describes basic functionality for a vision module.
  */
-public class Vision {
+public abstract class Vision {
     public enum State{
         DRIVE(1, 0, 2),
         BASIC(0, 1, 1),
@@ -39,18 +39,10 @@ public class Vision {
             return streamMode;
         }
     }
-    private NetworkTable visionTable;
 
-    private State currState = State.DRIVE;
+    protected NetworkTable visionTable;
 
-    public Vision(){
-        this(State.DRIVE);
-    }
-    public Vision(State state){
-        visionTable = NetworkTableInstance.getDefault().getTable("limelight");
-        
-        setState(state);
-    }
+    protected State currState = State.DRIVE;
 
     public void setState(State state){
         currState = state;
@@ -58,43 +50,19 @@ public class Vision {
         setPipeline(state.getPipeline());
         setStreamMode(state.getStreamMode());
     }
-    private void setLedMode(int value){
-        if(getLedMode() != value)
-            visionTable.getEntry("ledMode").setDouble(value);
-    }
-    private void setPipeline(int value){
-        if(getPipeline() != value)
-            visionTable.getEntry("pipeline").setDouble(value);
-    }
-    private void setStreamMode(int value){
-        if(getStreamMode() != value)
-            visionTable.getEntry("stream").setDouble(value);
-    }
+    protected abstract void setLedMode(int value);
+    protected abstract void setPipeline(int value);
+    protected abstract void setStreamMode(int value);
     
-
     public State getState(){
         return currState;
     }
-    public double getLedMode(){
-        return visionTable.getEntry("ledMode").getDouble(0);
-    }
-    public double getPipeline(){
-        return visionTable.getEntry("pipeline").getDouble(0);
-    }
-    public double getStreamMode(){
-        return visionTable.getEntry("stream").getDouble(0);
-    }
-    public boolean getHasTarget(){
-        return visionTable.getEntry("tv").getDouble(0) == 1.0;
-    }
-    public double getTx(){
-        return visionTable.getEntry("tx").getDouble(0);
-    }
-    public double getTy(){
-        return visionTable.getEntry("ty").getDouble(0);
-    }
-    public double getArea(){
-        return visionTable.getEntry("area").getDouble(0);
-    }
-    
+    public abstract double getLedMode();
+    public abstract double getPipeline();
+    public abstract double getStreamMode();
+    public abstract boolean getHasTarget();
+    public abstract double getTx();
+    public abstract double getTy();
+    public abstract double getArea();
+    public abstract Pose2d getPose();
 }

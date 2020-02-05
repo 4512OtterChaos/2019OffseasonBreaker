@@ -140,7 +140,7 @@ public class Drivetrain extends SubsystemBase {
     public void tankDrive(double left, double right, double driveSpeed){
         left *= driveSpeed;
         right *= driveSpeed;
-        tankDriveVolts(left, right);
+        tankDriveVolts(left*12, right*12);
     }
     /**
      * Uses PID + FF to achieve given wheel speeds.
