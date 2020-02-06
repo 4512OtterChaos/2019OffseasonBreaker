@@ -10,13 +10,47 @@ package frc.robot.common;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.LinearFilter;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 
 /**
  * Class for interfacing with a Limelight.
  */
-public class Limelight extends Vision{
-    LinearFilter txFilter = LinearFilter.movingAverage(4);
+public class Limelight{
+    public enum State{
+        DRIVE(1, 0, 2),
+        BASIC(0, 1, 1),
+        PNP(0, 2, 1);
+
+        private int ledMode;
+        private int pipeline;
+        private int streamMode;
+
+        private State(int ledMode, int pipeline, int streamMode){
+            this.ledMode = ledMode;
+            this.pipeline = pipeline;
+            this.streamMode = streamMode;
+        }
+
+        public int getLedMode(){
+            return ledMode;
+        }
+        public int getPipeline(){
+            return pipeline;
+        }
+        public int getStreamMode(){
+            return streamMode;
+        }
+    }
+
+    private NetworkTable visionTable;
+
+    private State currState = State.DRIVE;
+
+    private LinearFilter txFilter = LinearFilter.movingAverage(3);
+
+    private Timer changeTimer = new Timer(); // block data values for a period after changing pipelines
+
     public Limelight(){
         this(State.DRIVE);
     }
@@ -28,6 +62,8 @@ public class Limelight extends Vision{
 
     public void setState(State state){
         currState = state;
+        changeTimer.reset();
+        changeTimer.start();
         setLedMode(state.getLedMode());
         setPipeline(state.getPipeline());
         setStreamMode(state.getStreamMode());
@@ -75,7 +111,11 @@ public class Limelight extends Vision{
     }
 
     public double getFilteredTx(){
-        return txFilter.calculate(getTx());
+        if(changeTimer.get()>0.2){
+            changeTimer.stop();
+            return txFilter.calculate(getTx());
+        }
+        else return 0;
     }
     
 }

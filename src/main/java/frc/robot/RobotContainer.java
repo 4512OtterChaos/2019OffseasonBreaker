@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.BasicRamseteTest;
 import frc.robot.common.OCController;
 import frc.robot.common.Paths;
-import frc.robot.common.Vision;
 import frc.robot.common.Limelight;
 import frc.robot.subsystems.Drivetrain;
 
@@ -104,29 +103,21 @@ public class RobotContainer {
             .whenPressed(() -> drivetrain.shift(Drivetrain.Gear.HIGH));
 
         new Trigger(() -> controller.getTriggerAxis(Hand.kRight) > 0.1)
-            .toggleWhenActive(new RunCommand(
-                ()->{
-                    double linear = controller.getForward()*(drivetrain.getReduction()==Drivetrain.Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
-                    double angular = (controller.getTurn()*(kMaxRadiansLowGear));
-                    ChassisSpeeds chassisSpeeds = new ChassisSpeeds(linear, 0, angular);
-                    DifferentialDriveWheelSpeeds wheelSpeeds = drivetrain.getKinematics().toWheelSpeeds(chassisSpeeds);
-                    double leftMetersPerSecond = wheelSpeeds.leftMetersPerSecond;
-                    double rightMetersPerSecond = wheelSpeeds.rightMetersPerSecond;
-                    drivetrain.setVelocityPID(leftMetersPerSecond, rightMetersPerSecond);
-                },
-                drivetrain));
+            .toggleWhenActive(new RunCommand(()->drivetrain.setChassisSpeedPID(controller.getForward(), controller.getTurn()), 
+            drivetrain));
 
         new Trigger(() -> controller.getTriggerAxis(Hand.kLeft) > 0.1)
                 .whileActiveOnce(new PIDCommand(
-                    new PIDController(0.06, 0, 0, kRobotDelta),
+                    new PIDController(0.02, 0, 0, kRobotDelta),
                     limelight::getFilteredTx,
                     0,
                     output -> {
-                        if(limelight.getHasTarget()) drivetrain.setVelocityPID(-output, output);
+                        if(limelight.getHasTarget() && Math.abs(output)>0.005) drivetrain.setChassisSpeedPID(controller.getForward(), output);
+                        else drivetrain.setChassisSpeedPID(controller.getForward(), controller.getTurn());
                     },
                     drivetrain
-                )).whenActive(()->limelight.setState(Vision.State.BASIC))
-                .whenInactive(()->limelight.setState(Vision.State.DRIVE));
+                )).whenActive(()->limelight.setState(Limelight.State.BASIC))
+                .whenInactive(()->limelight.setState(Limelight.State.DRIVE));
 
         new JoystickButton(controller, 6)
             .whenPressed(()->drivetrain.setDriveSpeed(1))

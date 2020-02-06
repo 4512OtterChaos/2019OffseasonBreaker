@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
@@ -141,6 +142,22 @@ public class Drivetrain extends SubsystemBase {
         left *= driveSpeed;
         right *= driveSpeed;
         tankDriveVolts(left*12, right*12);
+    }
+    /**
+     * Feeds percentages into chassis speeds for velocity PID.
+     * Positive: linear forward, angular left
+     */
+    public void setChassisSpeedPID(double linearPercent, double angularPercent){
+        double linear = linearPercent*(getReduction()==Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
+        double angular = (angularPercent*(kMaxRadiansLowGear));
+        setChassisSpeedPID(new ChassisSpeeds(linear, 0, angular));
+    }
+    /**
+     * Feeds chassis speeds into differential drive wheel speeds for velocity PID.
+     */
+    public void setChassisSpeedPID(ChassisSpeeds chassisSpeeds){
+        DifferentialDriveWheelSpeeds dSpeeds = getKinematics().toWheelSpeeds(chassisSpeeds);
+        setVelocityPID(dSpeeds.leftMetersPerSecond, dSpeeds.rightMetersPerSecond);
     }
     /**
      * Uses PID + FF to achieve given wheel speeds.
