@@ -31,11 +31,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.OCConfig;
+import io.github.oblarg.oblog.Loggable;
 
 /**
  * Subsystem controlling the drivetrain
  */
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends SubsystemBase implements Loggable{
 
     // Enumerator for shifting gearbox state
     public enum Gear {

@@ -24,6 +24,8 @@ import frc.robot.common.OCController;
 import frc.robot.common.Paths;
 import frc.robot.common.Limelight;
 import frc.robot.subsystems.Drivetrain;
+import io.github.oblarg.oblog.Logger;
+import io.github.oblarg.oblog.annotations.Log;
 
 public class RobotContainer {
 
@@ -80,6 +82,8 @@ public class RobotContainer {
         );
         
         SmartDashboard.putData("Auto mode", commandChooser);
+
+        Logger.configureLoggingAndConfig(this, false);
     }
 
     public void log(){
@@ -88,6 +92,8 @@ public class RobotContainer {
 
         SmartDashboard.putNumber("Left Y", controller.getForward());
         SmartDashboard.putNumber("Right X", controller.getTurn());
+
+        Logger.updateEntries();
     }
 
     private void configureButtonBindings(){

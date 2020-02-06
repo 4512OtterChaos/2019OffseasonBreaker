@@ -12,11 +12,13 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
 /**
  * Class for interfacing with a Limelight.
  */
-public class Limelight{
+public class Limelight implements Loggable{
     public enum State{
         DRIVE(1, 0, 2),
         BASIC(0, 1, 1),
@@ -48,6 +50,7 @@ public class Limelight{
     private State currState = State.DRIVE;
 
     private LinearFilter txFilter = LinearFilter.movingAverage(3);
+    private LinearFilter tyFilter = LinearFilter.movingAverage(3);
 
     private Timer changeTimer = new Timer(); // block data values for a period after changing pipelines
 
@@ -94,6 +97,7 @@ public class Limelight{
     public double getStreamMode(){
         return visionTable.getEntry("stream").getDouble(0);
     }
+    @Log
     public boolean getHasTarget(){
         return visionTable.getEntry("tv").getDouble(0) != 0;
     }
@@ -110,12 +114,24 @@ public class Limelight{
         return new Pose2d();
     }
 
+    @Log
     public double getFilteredTx(){
+        if(!isBlocked())  return txFilter.calculate(getTx());
+        else return 0;
+    }
+
+    @Log
+    public double getFilteredTy(){
+        if(!isBlocked()) return tyFilter.calculate(getTy());
+        else return 0;
+    }
+
+    private boolean isBlocked(){
         if(changeTimer.get()>0.2){
             changeTimer.stop();
-            return txFilter.calculate(getTx());
+            return false;
         }
-        else return 0;
+        return false;
     }
     
 }
