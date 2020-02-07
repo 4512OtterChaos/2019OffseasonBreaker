@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.OCConfig;
 import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
 /**
  * Subsystem controlling the drivetrain
@@ -54,9 +55,11 @@ public class Drivetrain extends SubsystemBase implements Loggable{
         }
     }
         
+    @Log(methodName = "getAppliedOutput")
     private CANSparkMax leftMotorA = new CANSparkMax(4, MotorType.kBrushless), 
     leftMotorB = new CANSparkMax(5, MotorType.kBrushless),
     leftMotorC = new CANSparkMax(6, MotorType.kBrushless);
+    @Log(methodName = "getAppliedOutput")
     private CANSparkMax rightMotorA = new CANSparkMax(1, MotorType.kBrushless),
     rightMotorB = new CANSparkMax(2, MotorType.kBrushless),
     rightMotorC = new CANSparkMax(3, MotorType.kBrushless);
@@ -79,9 +82,12 @@ public class Drivetrain extends SubsystemBase implements Loggable{
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
     private DifferentialDriveOdometry odometry;
     
+    @Log.ToString()
     private Gear gear = getShiftedHigh() ? Gear.HIGH : Gear.LOW; // current gearbox ratio
     
+    @Log
     private PIDController leftPIDController = new PIDController(kP, kI, kD, kRobotDelta); // Velocity PID controllers
+    @Log
     private PIDController rightPIDController = new PIDController(kP, kI, kD, kRobotDelta);
     
     public Drivetrain(){
@@ -149,7 +155,7 @@ public class Drivetrain extends SubsystemBase implements Loggable{
      * Positive: linear forward, angular left
      */
     public void setChassisSpeedPID(double linearPercent, double angularPercent){
-        double linear = linearPercent*(getReduction()==Gear.LOW ? kMaxMetersLowGear:kMaxMetersHighGear);
+        double linear = linearPercent*getMaxVelocityMeters();
         double angular = (angularPercent*(kMaxRadiansLowGear));
         setChassisSpeedPID(new ChassisSpeeds(linear, 0, angular));
     }
@@ -233,6 +239,7 @@ public class Drivetrain extends SubsystemBase implements Loggable{
     /**
      * @return DifferentialDriveWheelSpeeds object in meters per second
      */
+    @Log.ToString()
     public DifferentialDriveWheelSpeeds getWheelSpeeds(){
         double circumference = Math.PI * 2.0 * kWheelRadiusMeters;
         return new DifferentialDriveWheelSpeeds(
@@ -251,11 +258,13 @@ public class Drivetrain extends SubsystemBase implements Loggable{
         return kinematics;
     }
     
+    @Log(methodName = "getDegrees")
     public Rotation2d getHeading(){
         pigeon.getYawPitchRoll(ypr);
         pigeon.getRawGyro(xyz);
         return Rotation2d.fromDegrees(ypr[0]);
     }
+    @Log.ToString(methodName = "getPoseMeters")
     public DifferentialDriveOdometry getOdometry(){
         return odometry;
     }
