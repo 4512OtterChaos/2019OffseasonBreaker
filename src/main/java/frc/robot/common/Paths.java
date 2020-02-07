@@ -28,54 +28,15 @@ public class Paths {
 
     //----- Paths
     public final OCPath forward; // our different paths
-    //public final OCPath backward;
     public final OCPath example;
-    //public final OCPath exampleBackwards;
     //-----
 
     /**
      * Generates autonomous paths given a drivetrain.
      */
     public Paths(Drivetrain drive){
-        System.out.println("-Forward-");
         forward = new OCPath(Poses.forward, drive);
-        System.out.println("-Example-");
         example = new OCPath(Poses.example, drive);
-
-        /*
-        List<Pose2d> examplePoses = 
-            Arrays.asList(
-                new Pose2d(),
-                new Pose2d(1.2, 0.8, new Rotation2d()),
-                new Pose2d(2.4, 0, new Rotation2d())
-            );
-        List<Pose2d> examplePosesReverse = examplePoses.stream().collect(Collectors.toList());
-        Collections.reverse(examplePosesReverse);
-
-        // Straight forward 1 meter
-        forward = TrajectoryGenerator.generateTrajectory(
-            Arrays.asList(
-                new Pose2d(),
-                new Pose2d(1, 0, new Rotation2d())
-            ), 
-            config.setReversed(false));
-        
-        backward = TrajectoryGenerator.generateTrajectory(
-            Arrays.asList(
-                new Pose2d(1, 0, new Rotation2d()),
-                new Pose2d()
-            ), 
-            config.setReversed(true));
-        // Take a little detour left and back while going forward
-        example = TrajectoryGenerator.generateTrajectory(
-            examplePoses,
-            config.setReversed(false));
-        // ...but in reverse
-        exampleBackwards = TrajectoryGenerator.generateTrajectory(
-            examplePosesReverse,
-            config.setReversed(true));
-        */
-        // For Pathweaver, do TrajectoryUtil.fromPathweaverJson()
     }
 
     /**

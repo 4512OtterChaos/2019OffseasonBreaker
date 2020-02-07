@@ -70,7 +70,7 @@ public class OCPath extends Trajectory{
      * @param drive Drivetrain to specify kinematics
      */
     public static TrajectoryConfig getDefaultConfig(Drivetrain drive){
-        return new TrajectoryConfig(kMaxMetersLowGear-1, kMaxAccelerationMeters-0.3)
+        return new TrajectoryConfig(kMaxMetersLowGear-2, kMaxAccelerationMeters-1)
             .setKinematics(drive.getKinematics())
             .addConstraint(new CentripetalAccelerationConstraint(kMaxCentripetalAccelerationMeters)) // Take corners slow
             .addConstraint(new DifferentialDriveVoltageConstraint(drive.getFeedForward(), drive.getKinematics(), 10)); // Account for voltage sag
