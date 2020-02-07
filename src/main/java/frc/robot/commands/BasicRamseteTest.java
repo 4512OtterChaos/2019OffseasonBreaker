@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.common.OCPath;
 import frc.robot.common.Paths;
 
 /**
@@ -20,13 +21,13 @@ import frc.robot.common.Paths;
 public class BasicRamseteTest extends RamseteCommand{
 
     Drivetrain drivetrain;
-    Trajectory trajectory;
+    OCPath trajectory;
     Timer timer = new Timer();
 
     /**
      * Construct ramsete command using drivetrain and following given trajectory
      */
-    public BasicRamseteTest(Drivetrain drivetrain, Trajectory trajectory){
+    public BasicRamseteTest(Drivetrain drivetrain, OCPath trajectory){
         super(
             trajectory,
             () -> drivetrain.getOdometry().getPoseMeters(),
@@ -66,5 +67,9 @@ public class BasicRamseteTest extends RamseteCommand{
         Paths.logTrajectory(trajectory, trajectory.getTotalTimeSeconds()+1);
         timer.stop();
         drivetrain.tankDrive(0, 0);
+    }
+
+    public OCPath getPath(){
+        return trajectory;
     }
 }
