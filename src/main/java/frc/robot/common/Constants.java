@@ -19,7 +19,6 @@ public class Constants {
     public static final double kTrackWidthMeters = Units.inchesToMeters(23); // Basically horizontal wheel gap
     public static final double kWheelRadiusMeters = Units.inchesToMeters(2);
     
-    public static final int kNeoTicks = 42; // internal neo encoder
     public static final double kGearRatioLow = 11.12; // shifting gearbox ratio(motor rotations per wheel rotation)
     public static final double kGearRatioHigh = 4.41;
 
