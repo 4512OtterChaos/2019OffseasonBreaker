@@ -52,7 +52,7 @@ public class RobotContainer {
         led.setLength(ledBuffer.getLength());
 
         for(int i=0;i<ledBuffer.getLength();i++){
-            ledBuffer.setHSV(i, 113, 122, 100);
+            ledBuffer.setHSV(i, 113, 122, 75);
         }
 
         led.setData(ledBuffer);
@@ -120,8 +120,8 @@ public class RobotContainer {
                         else drivetrain.setChassisSpeedPID(controller.getForward(), controller.getTurn());
                     },
                     drivetrain
-                )).whenActive(()->limelight.setState(Limelight.State.BASIC))
-                .whenInactive(()->limelight.setState(Limelight.State.DRIVE));
+                )).whenActive(()->limelight.setState(Limelight.State.PNP))
+                .whenInactive(()->limelight.setState(Limelight.State.PNP));
 
         new JoystickButton(controller, 6)
             .whenPressed(()->drivetrain.setDriveSpeed(1))

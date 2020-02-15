@@ -12,7 +12,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
 import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Config;
 import io.github.oblarg.oblog.annotations.Log;
 
 /**
@@ -47,15 +50,20 @@ public class Limelight implements Loggable{
 
     private NetworkTable visionTable;
 
-    private State currState = State.DRIVE;
+    private State currState = State.PNP;
 
-    private LinearFilter txFilter = LinearFilter.movingAverage(3);
-    private LinearFilter tyFilter = LinearFilter.movingAverage(3);
+    private static final int averageSampleSize = 4;
+    private LinearFilter txFilter = LinearFilter.movingAverage(averageSampleSize);
+    private LinearFilter tyFilter = LinearFilter.movingAverage(averageSampleSize);
+
+    private static final double camHeight = 12.4; // inches
+    private static final double targetHeight = 98.25;
+    private static double camAngle = 24;
 
     private Timer changeTimer = new Timer(); // block data values for a period after changing pipelines
 
     public Limelight(){
-        this(State.DRIVE);
+        this(State.PNP);
     }
     public Limelight(State state){
         visionTable = NetworkTableInstance.getDefault().getTable("limelight");
@@ -101,14 +109,21 @@ public class Limelight implements Loggable{
     public boolean getHasTarget(){
         return visionTable.getEntry("tv").getDouble(0) != 0;
     }
+    @Log
     public double getTx(){
         return visionTable.getEntry("tx").getDouble(0);
     }
+    @Log
     public double getTy(){
         return visionTable.getEntry("ty").getDouble(0);
     }
     public double getArea(){
         return visionTable.getEntry("area").getDouble(0);
+    }
+    public double[] get3d(){
+        double[] camtran = visionTable.getEntry("camtran").getDoubleArray(new double[]{});
+        SmartDashboard.putNumberArray("camtran", camtran);
+        return camtran;
     }
     public Pose2d getPose(){
         return new Pose2d();
@@ -119,11 +134,27 @@ public class Limelight implements Loggable{
         if(!isBlocked())  return txFilter.calculate(getTx());
         else return 0;
     }
-
     @Log
     public double getFilteredTy(){
         if(!isBlocked()) return tyFilter.calculate(getTy());
         else return 0;
+    }
+    @Config
+    public static void setCamAngle(double angle){
+        camAngle = angle;
+    }
+    @Log
+    public double getTrigDistance(){
+        double difference = targetHeight-camHeight;
+        return (difference/Math.tan(Units.degreesToRadians(camAngle+getTy())));
+    }
+    @Log
+    public double getPNPDistance(){
+        return get3d()[2];
+    }
+    @Log
+    public double getPNPHeight(){
+        return get3d()[1];
     }
 
     private boolean isBlocked(){
